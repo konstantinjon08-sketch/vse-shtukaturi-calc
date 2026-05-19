@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сколько вы сэкономите? — Все Штукатуры</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.card {
+  background: white;
+  border-radius: 16px;
+  max-width: 520px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+/* ШАПКА */
+.header {
+  background: #cc1f1f;
+  padding: 28px 30px 24px;
+  text-align: center;
+  color: white;
+  position: relative;
+}
+.logo-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.logo-icon {
+  background: white;
+  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.logo-text {
+  text-align: left;
+}
+.logo-text .top {
+  font-size: 11px;
+  opacity: 0.8;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.logo-text .main {
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+.header h1 {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+.header p {
+  font-size: 13px;
+  opacity: 0.88;
+}
+.badge-knauf {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px;
+  margin-top: 12px;
+}
+
+/* ТЕЛО */
+.body { padding: 26px 28px; }
+.step { display: none; }
+.step.active { display: block; }
+
+/* ИНДИКАТОР */
+.steps-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 22px;
+}
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  transition: all 0.3s;
+}
+.dot.active {
+  background: #cc1f1f;
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ПОЛЕ ВВОДА */
+.label { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+.sublabel { font-size: 13px; color: #888; margin-bottom: 16px; }
+.input-wrap { position: relative; margin-bottom: 18px; }
+.input-wrap input {
+  width: 100%;
+  padding: 16px 60px 16px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a1a1a;
+  outline: none;
+  transition: border-color 0.2s;
+  text-align: center;
+}
+.input-wrap input:focus { border-color: #cc1f1f; }
+.input-wrap .unit {
+  position: absolute; right: 18px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px; color: #aaa; font-weight: 600;
+}
+.quick-btns { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+.quick-btn {
+  flex: 1; min-width: 58px;
+  padding: 10px 6px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: white;
+  font-size: 13px; font-weight: 600;
+  color: #555; cursor: pointer;
+  transition: all 0.2s; text-align: center;
+}
+.quick-btn:hover, .quick-btn.sel {
+  border-color: #cc1f1f;
+  background: #fff5f5;
+  color: #cc1f1f;
+}
+
+/* КНОПКА */
+.btn-main {
+  width: 100%;
+  padding: 17px;
+  background: #cc1f1f;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: 0.2px;
+}
+.btn-main:hover { background: #b01818; transform: translateY(-1px); }
+.btn-main:active { transform: translateY(0); }
+
+/* РЕЗУЛЬТАТ */
+.result-hero {
+  background: linear-gradient(135deg, #27ae60, #1a8a47);
+  border-radius: 14px;
+  padding: 22px;
+  text-align: center;
+  color: white;
+  margin-bottom: 18px;
+}
+.result-hero .rl { font-size: 12px; opacity: 0.9; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.result-hero .big { font-size: 52px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+.result-hero .big span { font-size: 26px; }
+.result-hero .rs { font-size: 13px; opacity: 0.85; }
+
+.saving-badge {
+  display: inline-block;
+  background: #fff8e1;
+  color: #7a5800;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+
+.breakdown {
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.breakdown-title {
+  font-size: 11px; font-weight: 700;
+  color: #aaa; text-transform: uppercase;
+  letter-spacing: 0.8px; margin-bottom: 12px;
+}
+.brow {
+  display: flex; justify-content: space-between;
+  align-items: center; padding: 9px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.brow:last-child { border-bottom: none; }
+.brow .bn { font-size: 14px; color: #333; display: flex; align-items: center; gap: 8px; }
+.brow .ba { font-size: 15px; font-weight: 700; color: #27ae60; }
+
+.compare-box { display: flex; gap: 10px; margin-bottom: 18px; }
+.ci { flex: 1; border-radius: 12px; padding: 14px 12px; text-align: center; }
+.ci.them { background: #fff5f5; border: 2px solid #ffcccc; }
+.ci.us { background: #f0fff4; border: 2px solid #a3e8b4; }
+.ci .cl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.ci.them .cl { color: #cc1f1f; }
+.ci.us .cl { color: #27ae60; }
+.ci .cp { font-size: 21px; font-weight: 900; }
+.ci.them .cp { color: #b01818; }
+.ci.us .cp { color: #1a8a47; }
+.ci .cs { font-size: 11px; color: #888; margin-top: 4px; }
+
+/* ФОРМА */
+.form-title { font-size: 18px; font-weight: 800; color: #1a1a1a; text-align: center; margin-bottom: 6px; }
+.form-sub { font-size: 13px; color: #888; text-align: center; margin-bottom: 20px; line-height: 1.5; }
+.fi {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #1a1a1a;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.fi:focus { border-color: #cc1f1f; }
+.privacy { font-size: 11px; color: #ccc; text-align: center; margin-top: 12px; line-height: 1.5; }
+
+/* ТЕЛЕФОН */
+.phone-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #cc1f1f;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 14px;
+}
+.phone-link:hover { text-decoration: underline; }
+
+/* СПАСИБО */
+.thanks { text-align: center; padding: 16px 0; }
+.thanks .emoji { font-size: 56px; margin-bottom: 16px; }
+.thanks h2 { font-size: 22px; font-weight: 800; color: #1a1a1a; margin-bottom: 10px; }
+.thanks p { font-size: 14px; color: #777; line-height: 1.7; }
+.thanks .phone-big {
+  display: inline-block;
+  margin-top: 16px;
+  background: #cc1f1f;
+  color: white;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.back-btn {
+  background: none; border: none;
+  color: #aaa; font-size: 13px;
+  cursor: pointer; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 4px;
+}
+.back-btn:hover { color: #777; }
+
+/* ГАРАНТИИ */
+.guarantees {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.gar {
+  flex: 1;
+  background: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 11px;
+  color: #555;
+  line-height: 1.4;
+}
+.gar .gi { font-size: 20px; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- ШАПКА -->
+  <div class="header">
+    <div class="logo-block">
+      <div style="margin-bottom:14px;"><svg width="160" height="71" viewBox="0 0 186 82" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="186" height="82" rx="7" fill="#D32F2F"/>
+<path d="M39.28 28.48C40.5067 29.12 41.4667 30.0133 42.16 31.16C42.8533 32.28 43.2 33.56 43.2 35C43.2 37.2933 42.3867 39.2 40.76 40.72C39.1333 42.24 37.1467 43 34.8 43H22.8V15H33.92C36.2133 15 38.1467 15.7467 39.72 17.24C41.32 18.7333 42.12 20.5733 42.12 22.76C42.12 25.16 41.1733 27.0667 39.28 28.48ZM33.92 19.32H27.4V26.68H33.92C34.9333 26.68 35.7867 26.3333 36.48 25.64C37.1733 24.92 37.52 24.04 37.52 23C37.52 21.96 37.1733 21.0933 36.48 20.4C35.7867 19.68 34.9333 19.32 33.92 19.32ZM27.4 38.68H34.8C35.8667 38.68 36.76 38.3067 37.48 37.56C38.2267 36.7867 38.6 35.8533 38.6 34.76C38.6 33.6667 38.2267 32.7467 37.48 32C36.76 31.2267 35.8667 30.84 34.8 30.84H27.4V38.68ZM56.5694 43.52C53.556 43.52 51.036 42.5067 49.0094 40.48C47.0094 38.4267 46.0094 35.9333 46.0094 33C46.0094 30.0133 47.0094 27.52 49.0094 25.52C51.036 23.4933 53.556 22.48 56.5694 22.48C58.516 22.48 60.2894 22.9467 61.8894 23.88C63.4894 24.8133 64.6894 26.0667 65.4894 27.64L61.7694 29.8C61.316 28.84 60.6227 28.0933 59.6894 27.56C58.7827 27 57.7294 26.72 56.5294 26.72C54.7694 26.72 53.2894 27.32 52.0894 28.52C50.916 29.7467 50.3294 31.24 50.3294 33C50.3294 34.76 50.916 36.2533 52.0894 37.48C53.2894 38.68 54.7694 39.28 56.5294 39.28C57.7027 39.28 58.756 39.0133 59.6894 38.48C60.6494 37.92 61.3694 37.16 61.8494 36.2L65.5694 38.32C64.716 39.92 63.476 41.1867 61.8494 42.12C60.2494 43.0533 58.4894 43.52 56.5694 43.52ZM87.6994 34.84H71.7794C72.0994 36.3333 72.8194 37.4933 73.9394 38.32C75.086 39.1467 76.4994 39.56 78.1794 39.56C80.446 39.56 82.166 38.7333 83.3394 37.08L86.8994 39.16C84.9527 42.0667 82.0327 43.52 78.1394 43.52C74.9127 43.52 72.286 42.5333 70.2594 40.56C68.2594 38.56 67.2594 36.04 67.2594 33C67.2594 30.04 68.246 27.5467 70.2194 25.52C72.166 23.4933 74.6994 22.48 77.8194 22.48C80.726 22.48 83.126 23.5067 85.0194 25.56C86.9127 27.6133 87.8594 30.1067 87.8594 33.04C87.8594 33.5733 87.806 34.1733 87.6994 34.84ZM71.7394 31.32H83.4994C83.206 29.7467 82.5394 28.5333 81.4994 27.68C80.486 26.8267 79.246 26.4 77.7794 26.4C76.1794 26.4 74.846 26.84 73.7794 27.72C72.7127 28.6 72.0327 29.8 71.7394 31.32ZM35.065 60.654V51.5H37.549V63H21.449V51.5H23.933V60.654H28.257V51.5H30.741V60.654H35.065ZM39.2095 51.5H49.2145V53.892H45.4655V63H42.9815V53.892H39.2095V51.5ZM55.8146 59.872L58.7586 51.5H61.4036L56.9876 63.368C56.4509 64.8247 55.6996 65.9133 54.7336 66.634C53.7676 67.3547 52.6483 67.6767 51.3756 67.6V65.277C52.8476 65.369 53.8673 64.633 54.4346 63.069L54.5036 62.908L49.6736 51.5H52.3186L55.8146 59.872ZM67.8788 57.135L73.1228 63H70.1558L65.4408 57.687V63H62.9568V51.5H65.4408V56.583L69.9028 51.5H72.9388L67.8788 57.135ZM82.9808 53.133V51.5H85.4648V63H82.9808V61.344C82.0455 62.6473 80.7038 63.299 78.9558 63.299C77.3765 63.299 76.0272 62.7163 74.9078 61.551C73.7885 60.3857 73.2288 58.952 73.2288 57.25C73.2288 55.548 73.7885 54.1143 74.9078 52.949C76.0272 51.7837 77.3765 51.201 78.9558 51.201C80.7038 51.201 82.0455 51.845 82.9808 53.133ZM76.7478 59.895C77.4378 60.585 78.3042 60.93 79.3468 60.93C80.3895 60.93 81.2558 60.585 81.9458 59.895C82.6358 59.1897 82.9808 58.308 82.9808 57.25C82.9808 56.192 82.6358 55.318 81.9458 54.628C81.2558 53.9227 80.3895 53.57 79.3468 53.57C78.3042 53.57 77.4378 53.9227 76.7478 54.628C76.0578 55.318 75.7128 56.192 75.7128 57.25C75.7128 58.2927 76.0578 59.1743 76.7478 59.895ZM87.1411 51.5H97.1461V53.892H93.3971V63H90.9131V53.892H87.1411V51.5ZM103.746 59.872L106.69 51.5H109.335L104.919 63.368C104.383 64.8247 103.631 65.9133 102.665 66.634C101.699 67.3547 100.58 67.6767 99.3072 67.6V65.277C100.779 65.369 101.799 64.633 102.366 63.069L102.435 62.908L97.6052 51.5H100.25L103.746 59.872ZM117.397 51.201C118.961 51.201 120.311 51.7913 121.445 52.972C122.565 54.1373 123.124 55.5633 123.124 57.25C123.124 58.952 122.565 60.3857 121.445 61.551C120.326 62.7163 118.977 63.299 117.397 63.299C115.665 63.299 114.323 62.655 113.372 61.367V67.6H110.888V51.5H113.372V53.156C114.308 51.8527 115.649 51.201 117.397 51.201ZM114.407 59.895C115.097 60.585 115.964 60.93 117.006 60.93C118.049 60.93 118.915 60.585 119.605 59.895C120.295 59.1897 120.64 58.308 120.64 57.25C120.64 56.192 120.295 55.318 119.605 54.628C118.915 53.9227 118.049 53.57 117.006 53.57C115.964 53.57 115.097 53.9227 114.407 54.628C113.717 55.318 113.372 56.192 113.372 57.25C113.372 58.2927 113.717 59.1743 114.407 59.895ZM127.86 55.41H130.39C131.632 55.41 132.636 55.7627 133.403 56.468C134.185 57.158 134.576 58.0703 134.576 59.205C134.576 60.3243 134.185 61.2367 133.403 61.942C132.636 62.6473 131.632 63 130.39 63H125.376V51.5H127.86V55.41ZM135.956 63V51.5H138.44V63H135.956ZM127.86 60.769H130.413C130.903 60.769 131.31 60.6233 131.632 60.332C131.969 60.0407 132.138 59.665 132.138 59.205C132.138 58.745 131.977 58.3693 131.655 58.078C131.333 57.7867 130.919 57.641 130.413 57.641H127.86V60.769Z" fill="white"/>
+<circle cx="153.5" cy="35.5" r="18.5" fill="white"/>
+<path d="M144.048 37.792C144.379 37.792 144.661 37.9093 144.896 38.144C145.131 38.3787 145.248 38.6613 145.248 38.992C145.248 39.3227 145.131 39.6053 144.896 39.84C144.661 40.0747 144.379 40.192 144.048 40.192C143.717 40.192 143.435 40.0747 143.2 39.84C142.965 39.6053 142.848 39.3227 142.848 38.992C142.848 38.6613 142.96 38.3787 143.184 38.144C143.419 37.9093 143.707 37.792 144.048 37.792ZM151.614 31.792C152.702 31.792 153.641 32.2027 154.43 33.024C155.209 33.8347 155.598 34.8267 155.598 36C155.598 37.184 155.209 38.1813 154.43 38.992C153.651 39.8027 152.713 40.208 151.614 40.208C150.409 40.208 149.475 39.76 148.814 38.864V43.2H147.086V32H148.814V33.152C149.465 32.2453 150.398 31.792 151.614 31.792ZM149.534 37.84C150.014 38.32 150.617 38.56 151.342 38.56C152.067 38.56 152.67 38.32 153.15 37.84C153.63 37.3493 153.87 36.736 153.87 36C153.87 35.264 153.63 34.656 153.15 34.176C152.67 33.6853 152.067 33.44 151.342 33.44C150.617 33.44 150.014 33.6853 149.534 34.176C149.054 34.656 148.814 35.264 148.814 36C148.814 36.7253 149.054 37.3387 149.534 37.84ZM160.196 37.824L162.244 32H164.084L161.012 40.256C160.638 41.2693 160.116 42.0267 159.444 42.528C158.772 43.0293 157.993 43.2533 157.108 43.2V41.584C158.132 41.648 158.841 41.136 159.236 40.048L159.284 39.936L155.924 32H157.764L160.196 37.824Z" fill="#D32F2F"/>
+</svg></div>
+    </div>
+    <h1>Сколько вы сэкономите<br>на ровной штукатурке?</h1>
+    <p>Введите площадь стен — покажем реальную выгоду</p>
+    <div class="badge-knauf">✅ Аттестованные мастера KNAUF</div>
+  </div>
+
+  <div class="body">
+
+    <!-- ШАГ 1: ПЛОЩАДЬ -->
+    <div class="step active" id="step1">
+      <div class="steps-indicator">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+
+      <div class="label">Площадь стен вашего объекта</div>
+      <div class="sublabel">Не знаете точно — выберите приблизительно</div>
+
+      <div class="input-wrap">
+        <input type="number" id="area" placeholder="150" min="10" max="3000">
+        <span class="unit">м²</span>
+      </div>
+
+      <div class="quick-btns">
+        <button class="quick-btn" onclick="setArea(70,this)">70 м²</button>
+        <button class="quick-btn" onclick="setArea(150,this)">150 м²</button>
+        <button class="quick-btn" onclick="setArea(300,this)">300 м²</button>
+        <button class="quick-btn" onclick="setArea(500,this)">500 м²</button>
+      </div>
+
+      <div class="guarantees">
+        <div class="gar"><div class="gi">📦</div>Материал включён в цену</div>
+        <div class="gar"><div class="gi">🚚</div>Доставка и разгрузка включены</div>
+        <div class="gar"><div class="gi">📋</div>Работа по договору</div>
+      </div>
+
+      <button class="btn-main" onclick="calculate()">Рассчитать мою экономию →</button>
+    </div>
+
+    <!-- ШАГ 2: РЕЗУЛЬТАТ -->
+    <div class="step" id="step2">
+      <div class="steps-indicator">
+        <div class="dot"></div>
+        <div class="dot active"></div>
+        <div class="dot"></div>
+      </div>
+
+      <button class="back-btn" onclick="goStep(1)">← Изменить площадь</button>
+
+      <div class="result-hero">
+        <div class="rl">Ваша экономия составит</div>
+        <div class="big" id="totalSaving">0 <span>₽</span></div>
+        <div class="rs" id="areaLabel">при площади 0 м²</div>
+      </div>
+
+      <div style="text-align:center">
+        <div class="saving-badge" id="perMeterBadge">Экономия 0 ₽ с каждого м²</div>
+      </div>
+
+      <div class="breakdown">
+        <div class="breakdown-title">Из чего складывается экономия</div>
+        <div class="brow">
+          <div class="bn">📦 Материал включён в стоимость 950₽/м²</div>
+          <div class="ba" id="s1">0 ₽</div>
+        </div>
+        <div class="brow">
+          <div class="bn">✨ Ровные стены = меньше шпаклёвки</div>
+          <div class="ba" id="s2">0 ₽</div>
+        </div>
+        <div class="brow">
+          <div class="bn">🔲 Меньше подрезки плитки и клея</div>
+          <div class="ba" id="s3">0 ₽</div>
+        </div>
+        <div class="brow">
+          <div class="bn">🪑 Мебель без зазоров и переделок</div>
+          <div class="ba" id="s4">0 ₽</div>
+        </div>
+      </div>
+
+      <div class="compare-box">
+        <div class="ci them">
+          <div class="cl">❌ Конкуренты</div>
+          <div class="cp" id="priceOld">0 ₽</div>
+          <div class="cs">работа + материал отдельно</div>
+        </div>
+        <div class="ci us">
+          <div class="cl">✅ Все Штукатуры</div>
+          <div class="cp" id="priceUs">0 ₽</div>
+          <div class="cs">всё включено с доставкой</div>
+        </div>
+      </div>
+
+      <button class="btn-main" onclick="goStep(3)">
+        Получить точный расчёт бесплатно →
+      </button>
+
+      <a href="tel:+79015995059" class="phone-link">
+        📞 +7 (901) 599-50-59
+      </a>
+    </div>
+
+    <!-- ШАГ 3: ФОРМА -->
+    <div class="step" id="step3">
+      <div class="steps-indicator">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot active"></div>
+      </div>
+
+      <button class="back-btn" onclick="goStep(2)">← Назад</button>
+
+      <div class="form-title">Получите точный расчёт</div>
+      <div class="form-sub">Мастер приедет бесплатно, замерит объект<br>и подтвердит вашу экономию</div>
+
+      <input class="fi" type="text" id="userName" placeholder="Ваше имя">
+      <input class="fi" type="tel" id="userPhone" placeholder="+7 (___) ___-__-__">
+      <input class="fi" type="text" id="userAddress" placeholder="Адрес объекта (Истра, Одинцово и др.)">
+
+      <button class="btn-main" onclick="submitForm()">
+        🏠 Хочу бесплатный замер
+      </button>
+
+      <div class="privacy">
+        🔒 Нажимая кнопку, вы соглашаетесь на обработку персональных данных.<br>
+        Данные не передаются третьим лицам.
+      </div>
+    </div>
+
+    <!-- ШАГ 4: СПАСИБО -->
+    <div class="step" id="step4">
+      <div class="thanks">
+        <div class="emoji">🎉</div>
+        <h2>Заявка принята!</h2>
+        <p>
+          Мы свяжемся с вами в течение <strong>15 минут</strong>.<br><br>
+          Мастер приедет на бесплатный замер и подтвердит<br>
+          вашу экономию в <strong id="finalSaving">0 ₽</strong>.<br><br>
+          Или позвоните нам прямо сейчас:
+        </p>
+        <a href="tel:+79015995059" class="phone-big">📞 +7 (901) 599-50-59</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let savedTotal = 0;
+
+function fmt(n) { return n.toLocaleString('ru-RU') + ' ₽'; }
+
+function setArea(val, btn) {
+  document.getElementById('area').value = val;
+  document.querySelectorAll('.quick-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function calculate() {
+  const area = parseInt(document.getElementById('area').value) || 0;
+  if (area < 10) { alert('Введите площадь стен (минимум 10 м²)'); return; }
+
+  // Экономия на материале: конкуренты берут ~300₽/м2 отдельно за материал
+  const s1 = area * 300;
+  // Меньше шпаклёвки: ровные стены = 1 слой вместо 2-3 = ~150₽/м2
+  const s2 = area * 150;
+  // Плитка: меньше подрезки и клея, считаем 30% площади
+  const s3 = Math.round(area * 0.3 * 200);
+  // Мебель без зазоров и переделок
+  const s4 = 5000;
+
+  const total = s1 + s2 + s3 + s4;
+  const perMeter = Math.round(total / area);
+  savedTotal = total;
+
+  const priceUs  = area * 950;
+  const priceOld = area * 1300 + s2 + s3 + s4;
+
+  document.getElementById('totalSaving').innerHTML = total.toLocaleString('ru-RU') + ' <span>₽</span>';
+  document.getElementById('areaLabel').textContent = 'при площади ' + area + ' м²';
+  document.getElementById('perMeterBadge').textContent = 'Экономия ' + perMeter.toLocaleString('ru-RU') + ' ₽ с каждого м²';
+  document.getElementById('s1').textContent = fmt(s1);
+  document.getElementById('s2').textContent = fmt(s2);
+  document.getElementById('s3').textContent = fmt(s3);
+  document.getElementById('s4').textContent = fmt(s4);
+  document.getElementById('priceOld').textContent = fmt(priceOld);
+  document.getElementById('priceUs').textContent = fmt(priceUs);
+  document.getElementById('finalSaving').textContent = fmt(total);
+
+  goStep(2);
+}
+
+function goStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function submitForm() {
+  const name  = document.getElementById('userName').value.trim();
+  const phone = document.getElementById('userPhone').value.trim();
+  if (!name || !phone) { alert('Пожалуйста, введите имя и телефон'); return; }
+  goStep(4);
+}
+</script>
+</body>
+</html>
