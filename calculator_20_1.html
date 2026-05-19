@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор экономии — Все Штукатуры</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f2f2f2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.wrap{max-width:480px;width:100%}
+.step{display:none}
+.step.active{display:block}
+.card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);margin-bottom:12px}
+.header{background:#cc1f1f;padding:24px;text-align:center;color:white}
+.header h1{font-size:20px;font-weight:600;line-height:1.4;margin:14px 0 6px}
+.header p{font-size:13px;opacity:.85}
+.body{padding:20px}
+.lbl{font-size:13px;color:#888;margin-bottom:6px}
+.inp-box{border:2px solid #cc1f1f;border-radius:12px;padding:12px;text-align:center;font-size:30px;font-weight:600;color:#1a1a1a;margin-bottom:10px;outline:none;width:100%}
+.qbtns{display:flex;gap:7px;margin-bottom:18px}
+.qbtn{flex:1;padding:9px 4px;border:1.5px solid #ddd;border-radius:9px;background:white;font-size:13px;color:#666;cursor:pointer;transition:all .2s;text-align:center}
+.qbtn.sel,.qbtn:hover{border-color:#cc1f1f;color:#cc1f1f;background:#fff5f5}
+.btn-red{width:100%;padding:14px;background:#cc1f1f;color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer}
+.btn-red:hover{background:#b01818}
+.btn-orange{width:100%;padding:13px;background:#FF6B00;color:white;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-orange:hover{background:#e05e00}
+.btn-white{width:100%;padding:12px;background:white;color:#cc1f1f;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:7px}
+.green-box{background:linear-gradient(135deg,#27ae60,#1e9650);border-radius:14px;padding:18px;text-align:center;margin-bottom:12px}
+.green-box .lbl-sm{font-size:11px;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.green-box .big{font-size:46px;font-weight:700;color:white;line-height:1}
+.green-box .big span{font-size:22px}
+.green-box .sub{font-size:12px;color:rgba(255,255,255,.8);margin-top:4px}
+.section{background:#f8f8f8;border-radius:12px;padding:14px;margin-bottom:12px}
+.sec-title{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #eee}
+.row:last-child{border-bottom:none}
+.row .nm{font-size:13px;color:#333;font-weight:500}
+.row .ht{font-size:11px;color:#999;margin-top:2px;line-height:1.4;max-width:260px}
+.row .am{font-size:13px;font-weight:600;color:#27ae60;white-space:nowrap;margin-left:8px}
+.row .am.dark{color:#333}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding-top:10px;margin-top:6px;border-top:2px solid #ddd}
+.timer-box{background:#111;border-radius:14px;padding:16px;text-align:center;margin-bottom:12px}
+.price-line{display:flex;align-items:center;justify-content:center;gap:10px;padding-bottom:12px;margin-bottom:10px;border-bottom:1px solid rgba(255,255,255,.1)}
+.p-old{font-size:15px;color:#777;text-decoration:line-through}
+.p-new{font-size:24px;font-weight:700;color:#2ecc71}
+.p-badge{background:#cc1f1f;color:white;font-size:10px;padding:2px 7px;border-radius:20px}
+.timer-lbl{font-size:10px;color:#888;margin-bottom:8px}
+.timer-digits{display:flex;justify-content:center;align-items:center;gap:5px;margin-bottom:12px}
+.tbl{background:#222;border-radius:7px;padding:6px 10px;text-align:center}
+.tbl .dn{font-size:20px;font-weight:700;color:white;line-height:1}
+.tbl .dl{font-size:9px;color:#666;margin-top:2px}
+.tbl.ms .dn{color:#cc1f1f}
+.tsep{font-size:20px;font-weight:700;color:#cc1f1f}
+.reviews-box{border:1.5px solid #eee;border-radius:12px;padding:14px;text-align:center;margin-bottom:14px}
+.reviews-box .rt{font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:3px}
+.reviews-box .rs{font-size:12px;color:#888;margin-bottom:12px}
+.rbtns{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.rbtn{display:flex;align-items:center;gap:6px;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:500;color:white}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;color:#1a1a1a;outline:none;margin-bottom:10px;transition:border-color .2s}
+.form-input:focus{border-color:#cc1f1f}
+.thanks{text-align:center;padding:20px}
+.thanks .em{font-size:56px;margin-bottom:16px}
+.thanks h2{font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:10px}
+.thanks p{font-size:14px;color:#777;line-height:1.7}
+.phone-big{display:inline-block;margin-top:16px;background:#cc1f1f;color:white;padding:14px 28px;border-radius:12px;font-size:17px;font-weight:700;text-decoration:none}
+
+/* Слайд-переход */
+.slider-wrap{overflow:hidden;position:relative;}
+.slides{display:flex;transition:transform 0.4s cubic-bezier(.4,0,.2,1);}
+.slide{min-width:100%;width:100%;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ШАГ 1 -->
+<div class="step active" id="step1">
+<div class="card">
+<div class="header">
+<svg width="160" height="70" viewBox="0 0 186 82" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M39.28 28.48C40.5067 29.12 41.4667 30.0133 42.16 31.16C42.8533 32.28 43.2 33.56 43.2 35C43.2 37.2933 42.3867 39.2 40.76 40.72C39.1333 42.24 37.1467 43 34.8 43H22.8V15H33.92C36.2133 15 38.1467 15.7467 39.72 17.24C41.32 18.7333 42.12 20.5733 42.12 22.76C42.12 25.16 41.1733 27.0667 39.28 28.48ZM33.92 19.32H27.4V26.68H33.92C34.9333 26.68 35.7867 26.3333 36.48 25.64C37.1733 24.92 37.52 24.04 37.52 23C37.52 21.96 37.1733 21.0933 36.48 20.4C35.7867 19.68 34.9333 19.32 33.92 19.32ZM27.4 38.68H34.8C35.8667 38.68 36.76 38.3067 37.48 37.56C38.2267 36.7867 38.6 35.8533 38.6 34.76C38.6 33.6667 38.2267 32.7467 37.48 32C36.76 31.2267 35.8667 30.84 34.8 30.84H27.4V38.68ZM56.5694 43.52C53.556 43.52 51.036 42.5067 49.0094 40.48C47.0094 38.4267 46.0094 35.9333 46.0094 33C46.0094 30.0133 47.0094 27.52 49.0094 25.52C51.036 23.4933 53.556 22.48 56.5694 22.48C58.516 22.48 60.2894 22.9467 61.8894 23.88C63.4894 24.8133 64.6894 26.0667 65.4894 27.64L61.7694 29.8C61.316 28.84 60.6227 28.0933 59.6894 27.56C58.7827 27 57.7294 26.72 56.5294 26.72C54.7694 26.72 53.2894 27.32 52.0894 28.52C50.916 29.7467 50.3294 31.24 50.3294 33C50.3294 34.76 50.916 36.2533 52.0894 37.48C53.2894 38.68 54.7694 39.28 56.5294 39.28C57.7027 39.28 58.756 39.0133 59.6894 38.48C60.6494 37.92 61.3694 37.16 61.8494 36.2L65.5694 38.32C64.716 39.92 63.476 41.1867 61.8494 42.12C60.2494 43.0533 58.4894 43.52 56.5694 43.52ZM87.6994 34.84H71.7794C72.0994 36.3333 72.8194 37.4933 73.9394 38.32C75.086 39.1467 76.4994 39.56 78.1794 39.56C80.446 39.56 82.166 38.7333 83.3394 37.08L86.8994 39.16C84.9527 42.0667 82.0327 43.52 78.1394 43.52C74.9127 43.52 72.286 42.5333 70.2594 40.56C68.2594 38.56 67.2594 36.04 67.2594 33C67.2594 30.04 68.246 27.5467 70.2194 25.52C72.166 23.4933 74.6994 22.48 77.8194 22.48C80.726 22.48 83.126 23.5067 85.0194 25.56C86.9127 27.6133 87.8594 30.1067 87.8594 33.04C87.8594 33.5733 87.806 34.1733 87.6994 34.84ZM71.7394 31.32H83.4994C83.206 29.7467 82.5394 28.5333 81.4994 27.68C80.486 26.8267 79.246 26.4 77.7794 26.4C76.1794 26.4 74.846 26.84 73.7794 27.72C72.7127 28.6 72.0327 29.8 71.7394 31.32ZM35.065 60.654V51.5H37.549V63H21.449V51.5H23.933V60.654H28.257V51.5H30.741V60.654H35.065ZM39.2095 51.5H49.2145V53.892H45.4655V63H42.9815V53.892H39.2095V51.5ZM55.8146 59.872L58.7586 51.5H61.4036L56.9876 63.368C56.4509 64.8247 55.6996 65.9133 54.7336 66.634C53.7676 67.3547 52.6483 67.6767 51.3756 67.6V65.277C52.8476 65.369 53.8673 64.633 54.4346 63.069L54.5036 62.908L49.6736 51.5H52.3186L55.8146 59.872ZM67.8788 57.135L73.1228 63H70.1558L65.4408 57.687V63H62.9568V51.5H65.4408V56.583L69.9028 51.5H72.9388L67.8788 57.135ZM82.9808 53.133V51.5H85.4648V63H82.9808V61.344C82.0455 62.6473 80.7038 63.299 78.9558 63.299C77.3765 63.299 76.0272 62.7163 74.9078 61.551C73.7885 60.3857 73.2288 58.952 73.2288 57.25C73.2288 55.548 73.7885 54.1143 74.9078 52.949C76.0272 51.7837 77.3765 51.201 78.9558 51.201C80.7038 51.201 82.0455 51.845 82.9808 53.133ZM76.7478 59.895C77.4378 60.585 78.3042 60.93 79.3468 60.93C80.3895 60.93 81.2558 60.585 81.9458 59.895C82.6358 59.1897 82.9808 58.308 82.9808 57.25C82.9808 56.192 82.6358 55.318 81.9458 54.628C81.2558 53.9227 80.3895 53.57 79.3468 53.57C78.3042 53.57 77.4378 53.9227 76.7478 54.628C76.0578 55.318 75.7128 56.192 75.7128 57.25C75.7128 58.2927 76.0578 59.1743 76.7478 59.895ZM87.1411 51.5H97.1461V53.892H93.3971V63H90.9131V53.892H87.1411V51.5ZM103.746 59.872L106.69 51.5H109.335L104.919 63.368C104.383 64.8247 103.631 65.9133 102.665 66.634C101.699 67.3547 100.58 67.6767 99.3072 67.6V65.277C100.779 65.369 101.799 64.633 102.366 63.069L102.435 62.908L97.6052 51.5H100.25L103.746 59.872ZM117.397 51.201C118.961 51.201 120.311 51.7913 121.445 52.972C122.565 54.1373 123.124 55.5633 123.124 57.25C123.124 58.952 122.565 60.3857 121.445 61.551C120.326 62.7163 118.977 63.299 117.397 63.299C115.665 63.299 114.323 62.655 113.372 61.367V67.6H110.888V51.5H113.372V53.156C114.308 51.8527 115.649 51.201 117.397 51.201ZM114.407 59.895C115.097 60.585 115.964 60.93 117.006 60.93C118.049 60.93 118.915 60.585 119.605 59.895C120.295 59.1897 120.64 58.308 120.64 57.25C120.64 56.192 120.295 55.318 119.605 54.628C118.915 53.9227 118.049 53.57 117.006 53.57C115.964 53.57 115.097 53.9227 114.407 54.628C113.717 55.318 113.372 56.192 113.372 57.25C113.372 58.2927 113.717 59.1743 114.407 59.895ZM127.86 55.41H130.39C131.632 55.41 132.636 55.7627 133.403 56.468C134.185 57.158 134.576 58.0703 134.576 59.205C134.576 60.3243 134.185 61.2367 133.403 61.942C132.636 62.6473 131.632 63 130.39 63H125.376V51.5H127.86V55.41ZM135.956 63V51.5H138.44V63H135.956ZM127.86 60.769H130.413C130.903 60.769 131.31 60.6233 131.632 60.332C131.969 60.0407 132.138 59.665 132.138 59.205C132.138 58.745 131.977 58.3693 131.655 58.078C131.333 57.7867 130.919 57.641 130.413 57.641H127.86V60.769Z" fill="white"/>
+<circle cx="153.5" cy="35.5" r="18.5" fill="white"/>
+<path d="M144.048 37.792C144.379 37.792 144.661 37.9093 144.896 38.144C145.131 38.3787 145.248 38.6613 145.248 38.992C145.248 39.3227 145.131 39.6053 144.896 39.84C144.661 40.0747 144.379 40.192 144.048 40.192C143.717 40.192 143.435 40.0747 143.2 39.84C142.965 39.6053 142.848 39.3227 142.848 38.992C142.848 38.6613 142.96 38.3787 143.184 38.144C143.419 37.9093 143.707 37.792 144.048 37.792ZM151.614 31.792C152.702 31.792 153.641 32.2027 154.43 33.024C155.209 33.8347 155.598 34.8267 155.598 36C155.598 37.184 155.209 38.1813 154.43 38.992C153.651 39.8027 152.713 40.208 151.614 40.208C150.409 40.208 149.475 39.76 148.814 38.864V43.2H147.086V32H148.814V33.152C149.465 32.2453 150.398 31.792 151.614 31.792ZM149.534 37.84C150.014 38.32 150.617 38.56 151.342 38.56C152.067 38.56 152.67 38.32 153.15 37.84C153.63 37.3493 153.87 36.736 153.87 36C153.87 35.264 153.63 34.656 153.15 34.176C152.67 33.6853 152.067 33.44 151.342 33.44C150.617 33.44 150.014 33.6853 149.534 34.176C149.054 34.656 148.814 35.264 148.814 36C148.814 36.7253 149.054 37.3387 149.534 37.84ZM160.196 37.824L162.244 32H164.084L161.012 40.256C160.638 41.2693 160.116 42.0267 159.444 42.528C158.772 43.0293 157.993 43.2533 157.108 43.2V41.584C158.132 41.648 158.841 41.136 159.236 40.048L159.284 39.936L155.924 32H157.764L160.196 37.824Z" fill="#D32F2F"/>
+</svg>
+<h1>Сколько вы сэкономите<br>на ровной штукатурке?</h1>
+<p>Введите площадь стен — покажем реальную выгоду</p>
+</div>
+<div class="body">
+<div class="lbl">Площадь стен вашего объекта</div>
+<input class="inp-box" type="number" id="area" placeholder="150" min="10" max="3000">
+<div class="qbtns">
+<button class="qbtn" onclick="setArea(70,this)">70 м²</button>
+<button class="qbtn" onclick="setArea(150,this)">150 м²</button>
+<button class="qbtn" onclick="setArea(300,this)">300 м²</button>
+<button class="qbtn" onclick="setArea(500,this)">500 м²</button>
+</div>
+<button class="btn-red" onclick="calculate()">Рассчитать экономию →</button>
+</div>
+</div>
+</div>
+
+<!-- ШАГ 2: слайдер экономия → цена -->
+<div class="step" id="step2">
+<div class="card">
+<div class="slider-wrap">
+<div class="slides" id="slides">
+
+<!-- Слайд A: Экономия -->
+<div class="slide">
+<div class="body">
+<div class="green-box">
+<div class="lbl-sm">Ваша экономия на ремонте</div>
+<div class="big" id="totalSaving">0 <span>₽</span></div>
+<div class="sub" id="areaLabel">при площади 0 м²</div>
+</div>
+<div class="section">
+<div class="sec-title">Из чего складывается</div>
+<div class="row">
+<div>
+<div class="nm">Меньше слоёв шпаклёвки</div>
+<div class="ht">На ровные и гладкие стены уходит меньше шпаклёвки — экономите целый слой</div>
+</div>
+<div class="am" id="s2">0 ₽</div>
+</div>
+<div class="row">
+<div>
+<div class="nm">Меньше подрезки плитки</div>
+<div class="ht">Кривые стены съедают до 30% клея и до 5 м² плитки на подрезку — ровные этого не требуют</div>
+</div>
+<div class="am" id="s3">0 ₽</div>
+</div>
+<div class="row">
+<div>
+<div class="nm">Мебель без зазоров</div>
+<div class="ht">Шкафы и кухня встают вплотную — не нужно подпиливать и переделывать</div>
+</div>
+<div class="am" id="s4">0 ₽</div>
+</div>
+</div>
+<button class="btn-orange" onclick="slideToPrice()">
+<span>Узнать цену на штукатурку</span>
+<span style="font-size:16px">→</span>
+</button>
+</div>
+</div>
+
+<!-- Слайд B: Цена -->
+<div class="slide">
+<div class="body">
+<div class="section">
+<div class="sec-title">Наше предложение по штукатурке</div>
+<div class="row"><div class="nm" id="workLbl">Штукатурка 950₽/м²</div><div class="am dark" id="workPrice">0 ₽</div></div>
+<div class="row"><div class="nm">Углы 90°</div><div class="am">Бесплатно</div></div>
+<div class="row"><div class="nm">Цементная штукатурка в мокрых зонах</div><div class="am">Бесплатно</div></div>
+<div class="row"><div class="nm">Доставка и разгрузка</div><div class="am">Бесплатно</div></div>
+<div class="row"><div class="nm">Замер</div><div class="am">Бесплатно</div></div>
+<div class="total-row"><span style="font-size:14px;font-weight:600;color:#333">Итого</span><span style="font-size:22px;font-weight:700;color:#1a1a1a" id="totalPrice">0 ₽</span></div>
+</div>
+<div class="timer-box">
+<div class="price-line">
+<span class="p-old" id="pOld">0 ₽</span>
+<span class="p-new" id="pNew">0 ₽</span>
+<span class="p-badge">−5%</span>
+</div>
+<div class="timer-lbl">Скидка 5% действует ещё</div>
+<div class="timer-digits">
+<div class="tbl"><div class="dn" id="th">04</div><div class="dl">часа</div></div>
+<span class="tsep">:</span>
+<div class="tbl"><div class="dn" id="tm">37</div><div class="dl">минут</div></div>
+<span class="tsep">:</span>
+<div class="tbl"><div class="dn" id="ts">22</div><div class="dl">секунд</div></div>
+<span class="tsep">.</span>
+<div class="tbl ms"><div class="dn" id="tms">47</div><div class="dl">сотых</div></div>
+</div>
+<a href="tel:+79015995059" style="display:block;background:#cc1f1f;color:white;border-radius:10px;padding:12px;font-size:14px;font-weight:600;text-decoration:none;text-align:center">📞 Позвонить нам</a>
+<button class="btn-white" onclick="goStep(3)">Оставить заявку</button>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</div>
+
+<!-- ШАГ 3 -->
+<div class="step" id="step3">
+<div class="card">
+<div class="body">
+<div class="reviews-box">
+<div class="rt">Наши отзывы и примеры работ</div>
+<div class="rs">Убедитесь в качестве перед тем как позвонить</div>
+<div class="rbtns">
+<a href="https://vk.ru/vseshtukaturiru" class="rbtn" style="background:#0077FF" target="_blank"><svg viewBox="0 0 100 100" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="#0077FF"/><path fill="white" d="M53.3,72.1c-22.8,0-35.8-15.6-36.3-41.6h11.4c0.4,19.1,8.8,27.2,15.5,28.8V30.5h10.8v16.5c6.6-0.7,13.5-8.2,15.8-16.5h10.8c-1.8,8.7-7.1,16.2-14.6,20.8c8.3,1.8,14.6,9.3,16.7,21.3H72c-2.2-8-9-13.8-17.3-14.9v14.9C54.7,72.1,53.3,72.1,53.3,72.1z"/></svg> ВКонтакте</a>
+<a href="https://www.avito.ru/moskva/predlozheniya_uslug/mehanizirovannaya_shtukaturka_3945307541" class="rbtn" style="background:#00AAFF" target="_blank"><svg viewBox="0 0 109 28" width="65" height="17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.595 8.54999C12.4314 8.54999 13.92 7.06134 13.92 5.22499C13.92 3.38865 12.4314 1.89999 10.595 1.89999C8.75866 1.89999 7.27 3.38865 7.27 5.22499C7.27 7.06134 8.75866 8.54999 10.595 8.54999Z" fill="#965EEB"></path><path d="M22.245 14.47C26.2408 14.47 29.48 11.2308 29.48 7.235C29.48 3.23922 26.2408 0 22.245 0C18.2492 0 15.01 3.23922 15.01 7.235C15.01 11.2308 18.2492 14.47 22.245 14.47Z" fill="#00AAFF"></path><path d="M8.9 27.5C13.8153 27.5 17.8 23.5153 17.8 18.6C17.8 13.6847 13.8153 9.7 8.9 9.7C3.98467 9.7 0 13.6847 0 18.6C0 23.5153 3.98467 27.5 8.9 27.5Z" fill="#04E061"></path><path d="M24.325 26.38C27.2935 26.38 29.7 23.9735 29.7 21.005C29.7 18.0365 27.2935 15.63 24.325 15.63C21.3565 15.63 18.95 18.0365 18.95 21.005C18.95 23.9735 21.3565 26.38 24.325 26.38Z" fill="#FF4053"></path><path d="M41.36 1.625L32 26.065H37.03L38.95 20.965H48.89L50.82 26.065H55.81L46.5 1.625H41.35H41.36ZM40.68 16.475L43.95 7.875L47.2 16.475H40.68ZM61.82 19.765L57.76 8.895H52.96L59.5 26.065H64.25L70.69 8.905H65.89L61.83 19.775L61.82 19.765ZM76.72 8.895H72.15V26.065H76.71V8.905L76.72 8.895ZM74.42 7.655C74.872 7.6798 75.3243 7.61218 75.7492 7.45629C76.1742 7.30039 76.5629 7.05949 76.8917 6.7483C77.2204 6.43711 77.4822 6.06216 77.6612 5.64637C77.8401 5.23057 77.9324 4.78266 77.9324 4.33C77.9324 3.87734 77.8401 3.42943 77.6612 3.01363C77.4822 2.59784 77.2204 2.22289 76.8917 1.9117C76.5629 1.60051 76.1742 1.35961 75.7492 1.20371C75.3243 1.04782 74.872 0.980204 74.42 1.005C73.5697 1.05165 72.7696 1.4223 72.1841 2.04074C71.5987 2.65918 71.2724 3.47841 71.2724 4.33C71.2724 5.18159 71.5987 6.00082 72.1841 6.61926C72.7696 7.2377 73.5697 7.60835 74.42 7.655ZM85.76 4.315H81.2V8.865H78.53V13.005H81.2V20.305C81.2 24.435 83.48 26.225 86.69 26.225C87.7715 26.2373 88.8438 26.0262 89.84 25.605V21.345C89.3 21.545 88.73 21.645 88.14 21.655C86.75 21.655 85.74 21.115 85.74 19.255V13.005H89.84V8.905H85.74V4.315H85.76ZM99.46 8.585C97.6989 8.58318 95.9769 9.10386 94.5119 10.0811C93.0469 11.0584 91.9047 12.4483 91.23 14.075C90.3299 16.2523 90.3299 18.6977 91.23 20.875C92.1265 23.0576 93.853 24.7949 96.03 25.705C97.1109 26.1537 98.2697 26.3847 99.44 26.385C101.189 26.3681 102.894 25.8363 104.343 24.856C105.791 23.8757 106.918 22.4903 107.584 20.873C108.25 19.2557 108.424 17.478 108.086 15.7621C107.747 14.0462 106.91 12.4681 105.68 11.225C104.032 9.55913 101.793 8.6105 99.45 8.585H99.46ZM99.46 21.825C98.8191 21.8268 98.1858 21.6863 97.6058 21.4137C97.0258 21.1411 96.5136 20.7431 96.106 20.2485C95.6985 19.7539 95.4058 19.175 95.2491 18.5536C95.0925 17.9322 95.0757 17.2837 95.2 16.655C95.3652 15.8136 95.7765 15.0403 96.3817 14.4329C96.987 13.8255 97.7589 13.4116 98.5997 13.2434C99.4405 13.0752 100.312 13.1605 101.105 13.4883C101.897 13.8162 102.574 14.3719 103.05 15.085C103.527 15.7983 103.781 16.6371 103.78 17.495C103.78 18.0632 103.668 18.6257 103.45 19.1505C103.232 19.6753 102.913 20.152 102.511 20.5532C102.109 20.9545 101.632 21.2725 101.106 21.489C100.581 21.7055 100.018 21.8163 99.45 21.815V21.825H99.46Z" fill="black"></path></svg></a>
+<a href="https://profi.ru/profile/MingazhevAA2" class="rbtn" style="background:#FF6600" target="_blank">⭐ Профи.ру</a>
+</div>
+</div>
+<input class="form-input" type="text" id="uName" placeholder="Ваше имя">
+<input class="form-input" type="tel" id="uPhone" placeholder="+7 (___) ___-__-__">
+<input class="form-input" type="text" id="uAddr" placeholder="Адрес объекта (Истра, Одинцово...)">
+<button class="btn-red" onclick="submitForm()">Записаться на замер</button>
+</div>
+</div>
+</div>
+
+<!-- ШАГ 4 -->
+<div class="step" id="step4">
+<div class="card">
+<div class="thanks">
+<div class="em">🎉</div>
+<h2>Заявка принята!</h2>
+<p>Мы свяжемся с вами в течение <strong>15 минут</strong>.<br><br>Мастер приедет на бесплатный замер и подтвердит расчёт.</p>
+<a href="tel:+79015995059" class="phone-big">📞 +7 (901) 599-50-59</a>
+</div>
+</div>
+</div>
+
+</div>
+<script>
+function fmt(n){return n.toLocaleString('ru-RU')+' ₽';}
+function pad(n){return n<10?'0'+n:''+n;}
+function setArea(v,b){document.getElementById('area').value=v;document.querySelectorAll('.qbtn').forEach(function(x){x.classList.remove('sel');});b.classList.add('sel');}
+
+function getTileAndFurniture(a){
+  if(a<100) return {tile:8000,furn:5000};
+  if(a<200) return {tile:12000,furn:7000};
+  if(a<400) return {tile:18000,furn:10000};
+  return {tile:25000,furn:15000};
+}
+
+function calculate(){
+  var a=parseInt(document.getElementById('area').value)||0;
+  if(a<10){alert('Введите площадь стен (минимум 10 м²)');return;}
+  var s2=a*150;
+  var tf=getTileAndFurniture(a);
+  var s3=tf.tile, s4=tf.furn;
+  var total=s2+s3+s4;
+  var wp=a*950, pn=Math.round(wp*0.95);
+  document.getElementById('totalSaving').innerHTML=total.toLocaleString('ru-RU')+' <span>₽</span>';
+  document.getElementById('areaLabel').textContent='при площади '+a+' м²';
+  document.getElementById('s2').textContent=fmt(s2);
+  document.getElementById('s3').textContent=fmt(s3);
+  document.getElementById('s4').textContent=fmt(s4);
+  document.getElementById('workLbl').textContent='Штукатурка 950₽/м² × '+a+'м²';
+  document.getElementById('workPrice').textContent=fmt(wp);
+  document.getElementById('totalPrice').textContent=fmt(wp);
+  document.getElementById('pOld').textContent=fmt(wp);
+  document.getElementById('pNew').textContent=fmt(pn);
+  goStep(2);
+}
+
+function goStep(n){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('step'+n).classList.add('active');
+  if(n===2) document.getElementById('slides').style.transform='translateX(0)';
+  window.scrollTo(0,0);
+}
+
+function slideToPrice(){
+  document.getElementById('slides').style.transform='translateX(-100%)';
+  window.scrollTo(0,0);
+}
+
+function submitForm(){
+  var n=document.getElementById('uName').value.trim();
+  var p=document.getElementById('uPhone').value.trim();
+  if(!n||!p){alert('Введите имя и телефон');return;}
+  goStep(4);
+}
+
+var ms=47, total=4*3600+37*60+22;
+setInterval(function(){
+  ms-=10; if(ms<0){ms=99;total--;} if(total<0) total=5*3600;
+  document.getElementById('th').textContent=pad(Math.floor(total/3600));
+  document.getElementById('tm').textContent=pad(Math.floor((total%3600)/60));
+  document.getElementById('ts').textContent=pad(total%60);
+  document.getElementById('tms').textContent=pad(ms);
+},100);
+</script>
+</body>
+</html>
