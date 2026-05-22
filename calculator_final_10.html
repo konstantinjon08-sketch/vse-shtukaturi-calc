@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор — Все Штукатуры</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f2f2f2;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:20px}
+.wrap{max-width:480px;width:100%}
+.step{display:none}
+.step.active{display:block}
+.card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);margin-bottom:12px}
+.hdr{background:#cc1f1f;padding:24px 20px;text-align:center;color:white}
+.hdr svg{margin-bottom:12px}
+.hdr h1{font-size:20px;font-weight:600;line-height:1.4;margin-bottom:6px}
+.hdr p{font-size:13px;opacity:.85}
+.body{padding:20px}
+.lbl{font-size:13px;color:#888;margin-bottom:8px}
+.obj-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.obj-btn{border:1.5px solid #ddd;border-radius:12px;padding:14px 8px;background:white;cursor:pointer;text-align:center;transition:all .2s}
+.obj-btn.sel{border-color:#cc1f1f;background:#fff5f5}
+.obj-btn i{font-size:24px;color:#bbb;display:block;margin-bottom:6px}
+.obj-btn.sel i{color:#cc1f1f}
+.obj-btn span{font-size:12px;color:#555;font-weight:500}
+.obj-btn.sel span{color:#cc1f1f}
+.inp-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.inp-area{border:2px solid #cc1f1f;border-radius:12px;padding:12px;text-align:center;font-size:28px;font-weight:700;color:#1a1a1a;width:100px;flex-shrink:0;outline:none}
+.inp-label{font-size:15px;color:#888}
+.slider{width:100%;margin-bottom:12px;accent-color:#cc1f1f;height:4px}
+.qbtns{display:flex;gap:8px;margin-bottom:18px}
+.qbtn{flex:1;padding:10px 4px;border:1.5px solid #ddd;border-radius:9px;background:white;font-size:13px;color:#666;cursor:pointer;text-align:center;transition:all .2s}
+.qbtn.sel,.qbtn:hover{border-color:#cc1f1f;color:#cc1f1f;background:#fff5f5}
+.btn-red{width:100%;padding:14px;background:#cc1f1f;color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px;transition:background .2s}
+.btn-red:hover{background:#b01818}
+.btn-dark{width:100%;padding:14px;background:#444;color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px}
+.btn-dark:hover{background:#333}
+.btn-orange{width:100%;padding:14px;background:#FF6B00;color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
+.btn-orange:hover{background:#e05e00}
+.btn-max{width:100%;padding:14px;background:linear-gradient(135deg,#4acfff,#5533ee,#9933dd);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
+.green-box{background:linear-gradient(135deg,#27ae60,#1e9650);border-radius:14px;padding:18px;text-align:center;margin-bottom:12px;color:white}
+.green-box .sm{font-size:11px;opacity:.85;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.green-box .big{font-size:46px;font-weight:700;line-height:1}
+.green-box .big span{font-size:22px}
+.green-box .sub{font-size:12px;opacity:.8;margin-top:4px}
+.sec{background:#f8f8f8;border-radius:12px;padding:14px;margin-bottom:12px}
+.sec-title{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid #eee}
+.row:last-child{border:none}
+.row .nm{font-size:13px;color:#333;font-weight:500}
+.row .ht{font-size:11px;color:#aaa;margin-top:3px;max-width:260px;line-height:1.4}
+.row .am{font-size:13px;font-weight:600;color:#27ae60;white-space:nowrap;margin-left:10px}
+.price-card{background:#111;border-radius:14px;padding:18px;text-align:center;margin-bottom:12px}
+.price-old{font-size:15px;color:#777;text-decoration:line-through;margin-bottom:4px}
+.price-new{font-size:32px;font-weight:700;color:#2ecc71}
+.price-badge{display:inline-block;background:#cc1f1f;color:white;font-size:11px;padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle}
+.price-label{font-size:12px;color:#888;margin-top:8px}
+.free-list{margin-bottom:12px}
+.free-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:.5px solid #eee;font-size:13px}
+.free-item:last-child{border:none}
+.free-item .ft{color:#333}
+.free-item .fv{color:#27ae60;font-weight:600}
+.social-block{background:#f8f8f8;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px}
+.social-count{font-size:20px;font-weight:700;color:#cc1f1f;margin-bottom:3px}
+.social-sub{font-size:12px;color:#888;margin-bottom:12px}
+.social-links{display:flex;justify-content:center;gap:8px}
+.social-link{padding:8px 14px;border-radius:10px;font-size:12px;font-weight:500;color:white;text-decoration:none}
+.sl-vk{background:#0077FF}.sl-av{background:#00AAFF}.sl-pr{background:#FF6600}
+.form-inp{width:100%;padding:13px 15px;border:1.5px solid #e0e0e0;border-radius:11px;font-size:15px;color:#1a1a1a;outline:none;margin-bottom:10px;transition:border-color .2s}
+.form-inp:focus{border-color:#cc1f1f}
+.confirm-bar{display:none;background:#f0faf4;border:1.5px solid #27ae60;border-radius:12px;padding:14px;margin-top:4px}
+.confirm-bar.show{display:block}
+.confirm-title{font-size:14px;color:#1a1a1a;font-weight:500;margin-bottom:12px;text-align:center}
+.confirm-btns{display:flex;gap:10px}
+.btn-confirm{flex:2;padding:13px;background:#27ae60;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer}
+.btn-confirm:hover{background:#1e9650}
+.btn-cancel{flex:1;padding:13px;background:#e8e8e8;color:#888;border:none;border-radius:10px;font-size:14px;cursor:pointer}
+.thanks{text-align:center;padding:30px 20px}
+.thanks .em{font-size:60px;margin-bottom:16px}
+.thanks h2{font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:10px}
+.thanks p{font-size:14px;color:#777;line-height:1.7}
+.phone-big{display:inline-block;margin-top:16px;background:#cc1f1f;color:white;padding:14px 28px;border-radius:12px;font-size:17px;font-weight:700;text-decoration:none}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body>
+<div class="wrap">
+
+<!-- ШАГ 1 -->
+<div class="step active" id="step1">
+<div class="card">
+<div class="hdr">
+<svg width="160" height="70" viewBox="0 0 186 82" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M39.28 28.48C40.5067 29.12 41.4667 30.0133 42.16 31.16C42.8533 32.28 43.2 33.56 43.2 35C43.2 37.2933 42.3867 39.2 40.76 40.72C39.1333 42.24 37.1467 43 34.8 43H22.8V15H33.92C36.2133 15 38.1467 15.7467 39.72 17.24C41.32 18.7333 42.12 20.5733 42.12 22.76C42.12 25.16 41.1733 27.0667 39.28 28.48ZM33.92 19.32H27.4V26.68H33.92C34.9333 26.68 35.7867 26.3333 36.48 25.64C37.1733 24.92 37.52 24.04 37.52 23C37.52 21.96 37.1733 21.0933 36.48 20.4C35.7867 19.68 34.9333 19.32 33.92 19.32ZM27.4 38.68H34.8C35.8667 38.68 36.76 38.3067 37.48 37.56C38.2267 36.7867 38.6 35.8533 38.6 34.76C38.6 33.6667 38.2267 32.7467 37.48 32C36.76 31.2267 35.8667 30.84 34.8 30.84H27.4V38.68ZM56.5694 43.52C53.556 43.52 51.036 42.5067 49.0094 40.48C47.0094 38.4267 46.0094 35.9333 46.0094 33C46.0094 30.0133 47.0094 27.52 49.0094 25.52C51.036 23.4933 53.556 22.48 56.5694 22.48C58.516 22.48 60.2894 22.9467 61.8894 23.88C63.4894 24.8133 64.6894 26.0667 65.4894 27.64L61.7694 29.8C61.316 28.84 60.6227 28.0933 59.6894 27.56C58.7827 27 57.7294 26.72 56.5294 26.72C54.7694 26.72 53.2894 27.32 52.0894 28.52C50.916 29.7467 50.3294 31.24 50.3294 33C50.3294 34.76 50.916 36.2533 52.0894 37.48C53.2894 38.68 54.7694 39.28 56.5294 39.28C57.7027 39.28 58.756 39.0133 59.6894 38.48C60.6494 37.92 61.3694 37.16 61.8494 36.2L65.5694 38.32C64.716 39.92 63.476 41.1867 61.8494 42.12C60.2494 43.0533 58.4894 43.52 56.5694 43.52ZM87.6994 34.84H71.7794C72.0994 36.3333 72.8194 37.4933 73.9394 38.32C75.086 39.1467 76.4994 39.56 78.1794 39.56C80.446 39.56 82.166 38.7333 83.3394 37.08L86.8994 39.16C84.9527 42.0667 82.0327 43.52 78.1394 43.52C74.9127 43.52 72.286 42.5333 70.2594 40.56C68.2594 38.56 67.2594 36.04 67.2594 33C67.2594 30.04 68.246 27.5467 70.2194 25.52C72.166 23.4933 74.6994 22.48 77.8194 22.48C80.726 22.48 83.126 23.5067 85.0194 25.56C86.9127 27.6133 87.8594 30.1067 87.8594 33.04C87.8594 33.5733 87.806 34.1733 87.6994 34.84ZM71.7394 31.32H83.4994C83.206 29.7467 82.5394 28.5333 81.4994 27.68C80.486 26.8267 79.246 26.4 77.7794 26.4C76.1794 26.4 74.846 26.84 73.7794 27.72C72.7127 28.6 72.0327 29.8 71.7394 31.32ZM35.065 60.654V51.5H37.549V63H21.449V51.5H23.933V60.654H28.257V51.5H30.741V60.654H35.065ZM39.2095 51.5H49.2145V53.892H45.4655V63H42.9815V53.892H39.2095V51.5ZM55.8146 59.872L58.7586 51.5H61.4036L56.9876 63.368C56.4509 64.8247 55.6996 65.9133 54.7336 66.634C53.7676 67.3547 52.6483 67.6767 51.3756 67.6V65.277C52.8476 65.369 53.8673 64.633 54.4346 63.069L54.5036 62.908L49.6736 51.5H52.3186L55.8146 59.872ZM67.8788 57.135L73.1228 63H70.1558L65.4408 57.687V63H62.9568V51.5H65.4408V56.583L69.9028 51.5H72.9388L67.8788 57.135ZM82.9808 53.133V51.5H85.4648V63H82.9808V61.344C82.0455 62.6473 80.7038 63.299 78.9558 63.299C77.3765 63.299 76.0272 62.7163 74.9078 61.551C73.7885 60.3857 73.2288 58.952 73.2288 57.25C73.2288 55.548 73.7885 54.1143 74.9078 52.949C76.0272 51.7837 77.3765 51.201 78.9558 51.201C80.7038 51.201 82.0455 51.845 82.9808 53.133ZM76.7478 59.895C77.4378 60.585 78.3042 60.93 79.3468 60.93C80.3895 60.93 81.2558 60.585 81.9458 59.895C82.6358 59.1897 82.9808 58.308 82.9808 57.25C82.9808 56.192 82.6358 55.318 81.9458 54.628C81.2558 53.9227 80.3895 53.57 79.3468 53.57C78.3042 53.57 77.4378 53.9227 76.7478 54.628C76.0578 55.318 75.7128 56.192 75.7128 57.25C75.7128 58.2927 76.0578 59.1743 76.7478 59.895ZM87.1411 51.5H97.1461V53.892H93.3971V63H90.9131V53.892H87.1411V51.5ZM103.746 59.872L106.69 51.5H109.335L104.919 63.368C104.383 64.8247 103.631 65.9133 102.665 66.634C101.699 67.3547 100.58 67.6767 99.3072 67.6V65.277C100.779 65.369 101.799 64.633 102.366 63.069L102.435 62.908L97.6052 51.5H100.25L103.746 59.872ZM117.397 51.201C118.961 51.201 120.311 51.7913 121.445 52.972C122.565 54.1373 123.124 55.5633 123.124 57.25C123.124 58.952 122.565 60.3857 121.445 61.551C120.326 62.7163 118.977 63.299 117.397 63.299C115.665 63.299 114.323 62.655 113.372 61.367V67.6H110.888V51.5H113.372V53.156C114.308 51.8527 115.649 51.201 117.397 51.201ZM114.407 59.895C115.097 60.585 115.964 60.93 117.006 60.93C118.049 60.93 118.915 60.585 119.605 59.895C120.295 59.1897 120.64 58.308 120.64 57.25C120.64 56.192 120.295 55.318 119.605 54.628C118.915 53.9227 118.049 53.57 117.006 53.57C115.964 53.57 115.097 53.9227 114.407 54.628C113.717 55.318 113.372 56.192 113.372 57.25C113.372 58.2927 113.717 59.1743 114.407 59.895ZM127.86 55.41H130.39C131.632 55.41 132.636 55.7627 133.403 56.468C134.185 57.158 134.576 58.0703 134.576 59.205C134.576 60.3243 134.185 61.2367 133.403 61.942C132.636 62.6473 131.632 63 130.39 63H125.376V51.5H127.86V55.41ZM135.956 63V51.5H138.44V63H135.956ZM127.86 60.769H130.413C130.903 60.769 131.31 60.6233 131.632 60.332C131.969 60.0407 132.138 59.665 132.138 59.205C132.138 58.745 131.977 58.3693 131.655 58.078C131.333 57.7867 130.919 57.641 130.413 57.641H127.86V60.769Z" fill="white"/>
+<circle cx="153.5" cy="35.5" r="18.5" fill="white"/>
+<path d="M144.048 37.792C144.379 37.792 144.661 37.9093 144.896 38.144C145.131 38.3787 145.248 38.6613 145.248 38.992C145.248 39.3227 145.131 39.6053 144.896 39.84C144.661 40.0747 144.379 40.192 144.048 40.192C143.717 40.192 143.435 40.0747 143.2 39.84C142.965 39.6053 142.848 39.3227 142.848 38.992C142.848 38.6613 142.96 38.3787 143.184 38.144C143.419 37.9093 143.707 37.792 144.048 37.792ZM151.614 31.792C152.702 31.792 153.641 32.2027 154.43 33.024C155.209 33.8347 155.598 34.8267 155.598 36C155.598 37.184 155.209 38.1813 154.43 38.992C153.651 39.8027 152.713 40.208 151.614 40.208C150.409 40.208 149.475 39.76 148.814 38.864V43.2H147.086V32H148.814V33.152C149.465 32.2453 150.398 31.792 151.614 31.792ZM149.534 37.84C150.014 38.32 150.617 38.56 151.342 38.56C152.067 38.56 152.67 38.32 153.15 37.84C153.63 37.3493 153.87 36.736 153.87 36C153.87 35.264 153.63 34.656 153.15 34.176C152.67 33.6853 152.067 33.44 151.342 33.44C150.617 33.44 150.014 33.6853 149.534 34.176C149.054 34.656 148.814 35.264 148.814 36C148.814 36.7253 149.054 37.3387 149.534 37.84ZM160.196 37.824L162.244 32H164.084L161.012 40.256C160.638 41.2693 160.116 42.0267 159.444 42.528C158.772 43.0293 157.993 43.2533 157.108 43.2V41.584C158.132 41.648 158.841 41.136 159.236 40.048L159.284 39.936L155.924 32H157.764L160.196 37.824Z" fill="#D32F2F"/>
+</svg>
+<h1>Сколько вы сэкономите на ровной штукатурке?</h1>
+<p>Введите площадь стен — покажем реальную выгоду</p>
+</div>
+<div class="body">
+<div class="lbl">Тип объекта</div>
+<div class="obj-grid">
+<button class="obj-btn sel" onclick="selObj(this)"><i class="ti ti-building"></i><span>Квартира</span></button>
+<button class="obj-btn" onclick="selObj(this)"><i class="ti ti-home"></i><span>Дом / коттедж</span></button>
+<button class="obj-btn" onclick="selObj(this)"><i class="ti ti-building-skyscraper"></i><span>Коммерция</span></button>
+<button class="obj-btn" onclick="selObj(this)"><i class="ti ti-stairs"></i><span>Таунхаус</span></button>
+</div>
+<div class="lbl">Площадь стен вашего объекта</div>
+<div class="inp-row">
+<input class="inp-area" type="number" id="area" value="150" min="10" max="1000" oninput="syncSlider()">
+<span class="inp-label">м²</span>
+</div>
+<input type="range" class="slider" id="slider" min="10" max="1000" value="150" oninput="syncInput()">
+<div class="qbtns">
+<button class="qbtn" onclick="setA(70,this)">70 м²</button>
+<button class="qbtn" onclick="setA(150,this)">150 м²</button>
+<button class="qbtn" onclick="setA(300,this)">300 м²</button>
+<button class="qbtn" onclick="setA(500,this)">500 м²</button>
+</div>
+<button class="btn-red" onclick="calculate()">Рассчитать экономию →</button>
+</div>
+</div>
+</div>
+
+<!-- ШАГ 2 -->
+<div class="step" id="step2">
+<div class="card">
+<div class="body">
+<div class="green-box">
+<div class="sm">Ваша экономия на ремонте</div>
+<div class="big" id="totalSaving">0 <span>₽</span></div>
+<div class="sub" id="areaLabel">при площади 0 м²</div>
+</div>
+<div class="sec">
+<div class="sec-title">Из чего складывается</div>
+<div class="row">
+<div>
+<div class="nm">Меньше слоёв шпаклёвки</div>
+<div class="ht">На ровные и гладкие стены уходит меньше шпаклёвки — экономите целый слой</div>
+</div>
+<div class="am" id="saving1">0 ₽</div>
+</div>
+<div class="row">
+<div>
+<div class="nm">Меньше подрезки плитки</div>
+<div class="ht">Кривые стены съедают до 30% клея и до 5 м² плитки на подрезку — ровные этого не требуют</div>
+</div>
+<div class="am" id="saving2">0 ₽</div>
+</div>
+<div class="row">
+<div>
+<div class="nm">Мебель без зазоров</div>
+<div class="ht">Шкафы и кухня встают вплотную — не нужно подпиливать и переделывать</div>
+</div>
+<div class="am" id="saving3">0 ₽</div>
+</div>
+</div>
+<button class="btn-orange" onclick="goStep(3)">
+<span>Узнать цену на штукатурку</span>
+<span style="font-size:18px">→</span>
+</button>
+</div>
+</div>
+</div>
+
+<!-- ШАГ 3 -->
+<div class="step" id="step3">
+<div class="card">
+<div class="body">
+<div class="price-card">
+<div class="price-old">600 ₽/м²</div>
+<div class="price-new">550 ₽/м² <span class="price-badge">−10%</span></div>
+<div class="price-label">Фиксируем смету в договоре — без скрытых доплат</div>
+</div>
+<div class="free-list">
+<div class="free-item"><span class="ft">Выезд инженера-сметчика</span><span class="fv">Бесплатно</span></div>
+<div class="free-item"><span class="ft">Углы 90°</span><span class="fv">Бесплатно</span></div>
+<div class="free-item"><span class="ft">Цементная штукатурка в мокрых зонах</span><span class="fv">Бесплатно</span></div>
+<div class="free-item"><span class="ft">Защита окон и дверей плёнкой</span><span class="fv">Бесплатно</span></div>
+<div class="free-item"><span class="ft">Разгрузка и подъём материалов</span><span class="fv">Бесплатно</span></div>
+<div class="free-item"><span class="ft">Уборка мусора в мешки</span><span class="fv">Бесплатно</span></div>
+</div>
+<div class="social-block">
+<div class="social-count">200+ объектов сдано</div>
+<div class="social-sub">Смотрите отзывы и примеры работ</div>
+<div class="social-links">
+<a href="https://vk.ru/vseshtukaturiru" class="social-link sl-vk" target="_blank">
+<svg width="16" height="16" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:5px"><rect width="100" height="100" rx="22" fill="#0077FF"/><path fill="white" d="M53.3,72.1c-22.8,0-35.8-15.6-36.3-41.6h11.4c0.4,19.1,8.8,27.2,15.5,28.8V30.5h10.8v16.5c6.6-0.7,13.5-8.2,15.8-16.5h10.8c-1.8,8.7-7.1,16.2-14.6,20.8c8.3,1.8,14.6,9.3,16.7,21.3H72c-2.2-8-9-13.8-17.3-14.9v14.9H53.3z"/></svg>ВКонтакте</a>
+<a href="https://www.avito.ru/moskva/predlozheniya_uslug/mehanizirovannaya_shtukaturka_3945307541" class="social-link sl-av" target="_blank">
+<svg width="32" height="10" viewBox="0 0 320 82" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:5px">
+<circle cx="26" cy="58" r="26" fill="#04E061"/>
+<circle cx="71" cy="77" r="16" fill="#FF4053"/>
+<circle cx="31" cy="25" r="10" fill="#965EEB"/>
+<path fill="white" d="M110,5l-27,72h15l6-15h29l6,15h15L127,5H110z M108,51l10-25l10,25H108z"/>
+<path fill="white" d="M290,22c-16,0-29,13-29,29s13,29,29,29s29-13,29-29S306,22,290,22z M290,67c-9,0-16-7-16-16s7-16,16-16s16,7,16,16S299,67,290,67z"/>
+<path fill="white" d="M182,56l-12-33h-14l19,51h14l19-51h-14L182,56z"/>
+<rect fill="white" x="220" y="23" width="13" height="51"/>
+<circle fill="white" cx="226" cy="10" r="10"/>
+<path fill="white" d="M253,10h-13v13h-8v12h8v33c0,12,7,17,16,17c3,0,7-1,9-2v-13c-2,1-3,1-5,1c-4,0-7-2-7-7V35h12V23h-12V10z"/>
+</svg>Авито</a>
+<a href="https://profi.ru/profile/MingazhevAA2" class="social-link sl-pr" target="_blank">
+<svg width="40" height="16" viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:5px"><rect width="100" height="40" rx="6" fill="#1a1a2e"/><text x="50" y="28" font-size="22" font-weight="900" fill="white" text-anchor="middle" font-family="Arial Black,Arial" letter-spacing="-1">ПРОФИ</text></svg>Профи.ру</a>
+</div>
+</div>
+<button class="btn-red" onclick="goStep(4)">Вызвать инженера-сметчика</button>
+<a href="tel:+79015995059" style="display:block;text-decoration:none">
+<button class="btn-dark" style="width:100%">📞 Позвонить нам</button>
+</a>
+<a href="https://max.ru/u/f9LHodD0cOI0Px1J9vEynw3Cjuw05P8V9VJ5cRzvhepLCDaGf5C3rWEbGCg" target="_blank" style="display:block;text-decoration:none">
+<button class="btn-max" style="width:100%">
+<svg width="20" height="20" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" fill-rule="evenodd" d="M508.211 878.328c-75.007 0-109.864-10.95-170.453-54.75-38.325 49.275-159.686 87.783-164.979 21.9 0-49.456-10.95-91.248-23.36-136.873-14.782-56.21-31.572-118.807-31.572-209.508 0-216.626 177.754-379.597 388.357-379.597 210.785 0 375.947 171.001 375.947 381.604.707 207.346-166.595 376.118-373.94 377.224m3.103-571.585c-102.564-5.292-182.499 65.7-200.201 177.024-14.6 92.162 11.315 204.398 33.397 210.238 10.585 2.555 37.23-18.98 53.837-35.587a189.8 189.8 0 0 0 92.71 33.032c106.273 5.112 197.08-75.794 204.215-181.95 4.154-106.382-77.67-196.486-183.958-202.574Z" clip-rule="evenodd"/></svg>
+Написать в MAX
+</button>
+</a>
+</div>
+</div>
+</div>
+
+<!-- ШАГ 4 -->
+<div class="step" id="step4">
+<div class="card">
+<div class="body">
+<p style="font-size:14px;color:#555;margin-bottom:16px">Инженер приедет бесплатно — зафиксируем цену в договоре</p>
+<input class="form-inp" type="text" id="uName" placeholder="Ваше имя" oninput="checkForm()">
+<input class="form-inp" type="tel" id="uPhone" placeholder="+7 (___) ___-__-__" oninput="checkForm()">
+<div class="confirm-bar" id="confirmBar">
+<div class="confirm-title">Отправить заявку?</div>
+<div class="confirm-btns">
+<button class="btn-confirm" onclick="submitForm()">Да, отправить</button>
+<button class="btn-cancel" onclick="cancelForm()">Отмена</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ШАГ 5 -->
+<div class="step" id="step5">
+<div class="card">
+<div class="thanks">
+<div class="em">🎉</div>
+<h2>Заявка принята!</h2>
+<p>Инженер-сметчик свяжется с вами в течение <strong>15 минут</strong> и согласует удобное время выезда на бесплатный замер.</p>
+<a href="tel:+79015995059" class="phone-big">📞 +7 (901) 599-50-59</a>
+</div>
+</div>
+</div>
+
+</div>
+<script>
+var BOT_TOKEN='7172987920:AAHQC2ffqMYYibATUxTZxPdGcBThZFWh5ZY';
+var CHAT_ID=623526573;
+
+function fmt(n){return n.toLocaleString('ru-RU')+' ₽';}
+function selObj(b){document.querySelectorAll('.obj-btn').forEach(function(x){x.classList.remove('sel');});b.classList.add('sel');}
+function syncSlider(){var v=parseInt(document.getElementById('area').value)||10;document.getElementById('slider').value=v;}
+function syncInput(){var v=document.getElementById('slider').value;document.getElementById('area').value=v;}
+function setA(v,b){document.getElementById('area').value=v;document.getElementById('slider').value=v;document.querySelectorAll('.qbtn').forEach(function(x){x.classList.remove('sel');});b.classList.add('sel');}
+
+function getTF(a){
+  if(a<100)return{t:8000,f:5000};
+  if(a<200)return{t:12000,f:7000};
+  if(a<400)return{t:18000,f:10000};
+  return{t:25000,f:15000};
+}
+
+function calculate(){
+  var a=parseInt(document.getElementById('area').value)||0;
+  if(a<10){alert('Введите площадь стен (минимум 10 м²)');return;}
+  var s1=a*150,tf=getTF(a),s2=tf.t,s3=tf.f,total=s1+s2+s3;
+  document.getElementById('totalSaving').innerHTML=total.toLocaleString('ru-RU')+' <span>₽</span>';
+  document.getElementById('areaLabel').textContent='при площади '+a+' м²';
+  document.getElementById('saving1').textContent=fmt(s1);
+  document.getElementById('saving2').textContent=fmt(s2);
+  document.getElementById('saving3').textContent=fmt(s3);
+  goStep(2);
+}
+
+function goStep(n){
+  document.querySelectorAll('.step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('step'+n).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function checkForm(){
+  var n=document.getElementById('uName').value.trim();
+  var p=document.getElementById('uPhone').value.trim();
+  var bar=document.getElementById('confirmBar');
+  if(n.length>1&&p.length>5){bar.classList.add('show');}
+  else{bar.classList.remove('show');}
+}
+
+function cancelForm(){
+  document.getElementById('uName').value='';
+  document.getElementById('uPhone').value='';
+  document.getElementById('confirmBar').classList.remove('show');
+}
+
+function submitForm(){
+  var n=document.getElementById('uName').value.trim();
+  var p=document.getElementById('uPhone').value.trim();
+  var area=document.getElementById('area').value||'не указана';
+  var objBtn=document.querySelector('.obj-btn.sel span');
+  var obj=objBtn?objBtn.textContent:'не указан';
+  var msg='\uD83D\uDD28 Новая заявка с калькулятора!\n\n\uD83D\uDC64 Имя: '+n+'\n\uD83D\uDCDE Телефон: '+p+'\n\uD83C\uDFE0 Тип объекта: '+obj+'\n\uD83D\uDCD0 Площадь: '+area+' м²';
+  fetch('https://vse-shtukaturi-calc.vercel.app/api/send',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:n,phone:p,address:obj,area:area})
+  }).then(function(r){return r.json();}).then(function(d){console.log(d);});
+  goStep(5);
+}
+</script>
+</body>
+</html>
