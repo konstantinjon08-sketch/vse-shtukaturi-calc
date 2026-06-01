@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ВсеШтукатуры.ру — механизированная штукатурка домов и коттеджей премиум-качества</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bone:#F1EBDE; --paper:#FAF6EE; --ink:#141209; --ink-2:#211d12; --ink-soft:#5B5447;
+    --clay:#B4451F; --clay-d:#8C3413; --green:#293f34; --gold:#C9A24B;
+    --line:#D7CEBC; --white:#FFFDF8;
+    --shadow:0 34px 80px -38px rgba(20,18,9,.55);
+    --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Manrope',sans-serif;background:var(--bone);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;line-height:1.05;letter-spacing:-.015em}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 26px}
+  a{color:inherit;text-decoration:none}
+  .accent{color:var(--clay)}
+
+  /* header */
+  header{position:fixed;top:0;left:0;right:0;z-index:90;transition:background .3s,border-color .3s}
+  header.solid{background:rgba(241,235,222,.86);backdrop-filter:blur(12px);border-bottom:1px solid rgba(215,206,188,.7)}
+  .bar{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .logo{font-family:'Fraunces',serif;font-weight:600;font-size:20px;color:#fff;transition:color .3s}
+  header.solid .logo{color:var(--ink)}
+  .logo b{color:var(--clay)}
+  .bar-right{display:flex;align-items:center;gap:15px}
+  .phone-top{font-family:'Fraunces',serif;font-size:21px;font-weight:600;white-space:nowrap;color:#fff;transition:color .3s}
+  header.solid .phone-top{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;font-weight:700;cursor:pointer;border:none;transition:.2s;font-family:'Manrope',sans-serif;letter-spacing:.01em}
+  .btn-call{background:var(--clay);color:#fff;padding:13px 26px;font-size:16px;box-shadow:0 12px 30px -12px rgba(180,69,31,.75)}
+  .btn-call:hover{background:var(--clay-d);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink);padding:11px 22px;font-size:15px}
+  .btn-ghost:hover{background:var(--ink);color:var(--bone)}
+  .btn-lg{padding:18px 40px;font-size:18px}
+  @media(max-width:780px){.phone-top{display:none}.btn-call{padding:11px 20px;font-size:15px}}
+
+  /* ===== CINEMATIC HERO ===== */
+  .hero{position:relative;height:520vh}
+  .stage{position:sticky;top:0;height:100vh;overflow:hidden;background:#0d0b06}
+  .cine{position:absolute;inset:0}
+  .scene{position:absolute;inset:0;opacity:0;will-change:opacity,transform,filter;transform-origin:50% 45%}
+  .scene .vig{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 42%,transparent 30%,rgba(8,6,3,.55) 100%)}
+  .scene .grain{position:absolute;inset:0;background-image:var(--grain);background-size:170px;mix-blend-mode:overlay;opacity:.5}
+  /* room perspective: floor + back wall + side */
+  .room{position:absolute;inset:0}
+  .room .back{position:absolute;left:18%;right:18%;top:16%;bottom:30%}
+  .room .floor{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,#1a1610,#0c0a06);clip-path:polygon(0 100%,100% 100%,82% 0,18% 0)}
+  .room .lwall{position:absolute;left:0;top:0;bottom:0;width:30%;background:linear-gradient(90deg,rgba(0,0,0,.5),transparent);clip-path:polygon(0 0,100% 16%,100% 70%,0 100%)}
+  .room .rwall{position:absolute;right:0;top:0;bottom:0;width:30%;background:linear-gradient(270deg,rgba(0,0,0,.5),transparent);clip-path:polygon(100% 0,0 16%,0 70%,100% 100%)}
+  /* scene tints */
+  .s0{background:radial-gradient(90% 80% at 50% 30%,#3a3326,#15110a 75%)}
+  .s1 .back{background:linear-gradient(160deg,#7a5a2f,#5a4navy 0,#4c3a1f);background:linear-gradient(160deg,#8a6326,#54galaxy);background:linear-gradient(160deg,#9a6f2c,#5a4420)}
+  .s1{background:radial-gradient(90% 80% at 50% 35%,#4a3a1c,#14100a 78%)}
+  .s2{background:radial-gradient(90% 80% at 50% 35%,#2f3a44,#0f1116 78%)}
+  .s3{background:radial-gradient(90% 80% at 50% 38%,#d9d2c4,#9a9384 80%)}
+  .s4{background:radial-gradient(90% 80% at 50% 38%,#cfc8ba,#8d8676 80%)}
+  .s5{background:radial-gradient(95% 85% at 50% 40%,#efe9dc,#cfc7b6 85%)}
+  .s1 .back{background:linear-gradient(160deg,#b98a32,#6e5226)}
+  .s2 .back{background:linear-gradient(160deg,#5b6b78,#33404a);box-shadow:inset 0 0 0 2px rgba(255,255,255,.05)}
+  .s2 .beacons{position:absolute;inset:0}
+  .s2 .beacons:before,.s2 .beacons:after{content:"";position:absolute;top:18%;bottom:32%;width:3px;background:linear-gradient(180deg,#d9c07a,#9a7d2f);box-shadow:0 0 12px rgba(217,192,122,.6)}
+  .s2 .beacons:before{left:40%} .s2 .beacons:after{right:40%}
+  .s3 .back{background:linear-gradient(160deg,#efe9dc,#cdc6b6)}
+  .s3 .scan{position:absolute;left:18%;right:18%;height:2px;top:50%;background:linear-gradient(90deg,transparent,#fff,#c9a24b,transparent);box-shadow:0 0 22px 4px rgba(201,162,75,.55);animation:scan 3.2s ease-in-out infinite}
+  @keyframes scan{0%,100%{top:30%}50%{top:64%}}
+  .s4 .back{background:linear-gradient(160deg,#efe9dc,#cdc6b6)}
+  .s4 .corner{position:absolute;left:46%;top:24%;width:140px;height:200px;border-left:3px solid #c9a24b;border-bottom:3px solid #c9a24b;box-shadow:-6px 6px 22px rgba(201,162,75,.4)}
+  .s4 .corner .deg{position:absolute;left:10px;bottom:10px;font:600 13px Manrope;color:#1d1a12;background:#c9a24b;padding:3px 8px;border-radius:6px}
+  .s5 .back{background:linear-gradient(160deg,#fbf7ee,#e7e0d0)}
+
+  .hero-ui{position:absolute;inset:0;z-index:10;pointer-events:none}
+  .hero-ui .wrap{height:100%;position:relative}
+  .h-eyebrow{position:absolute;top:96px;left:26px;font-size:12.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,253,248,.78);display:flex;align-items:center;gap:11px}
+  .h-eyebrow:before{content:"";width:34px;height:1.5px;background:var(--gold)}
+  .h-title{position:absolute;top:140px;left:26px;right:26px;max-width:16ch;color:#fff;font-size:clamp(34px,5.5vw,68px);text-shadow:0 4px 40px rgba(0,0,0,.5)}
+  .h-title em{font-style:italic;color:var(--gold)}
+  /* scene captions */
+  .caps{position:absolute;left:26px;bottom:150px;height:2.6em}
+  .cap{position:absolute;left:0;bottom:0;opacity:0;transform:translateY(12px);transition:opacity .5s,transform .5s;color:#fff}
+  .cap .step{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px}
+  .cap .txt{font-family:'Fraunces',serif;font-size:clamp(20px,3vw,34px);line-height:1.1}
+  .cap.on{opacity:1;transform:none}
+  /* persistent CTA + progress, pointer enabled */
+  .hero-cta{position:absolute;left:26px;bottom:64px;display:flex;gap:12px;align-items:center;pointer-events:auto;flex-wrap:wrap}
+  .progress{position:absolute;right:26px;bottom:70px;display:flex;align-items:center;gap:14px;pointer-events:none}
+  .pdots{display:flex;gap:7px}
+  .pdots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);transition:.3s}
+  .pdots i.on{background:var(--gold);transform:scale(1.35)}
+  .prail{width:120px;height:3px;background:rgba(255,255,255,.18);border-radius:3px;overflow:hidden}
+  .prail span{display:block;height:100%;width:0;background:var(--gold)}
+  .scrollcue{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:11px;letter-spacing:.18em;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:7px}
+  .scrollcue .m{width:22px;height:34px;border:1.5px solid rgba(255,255,255,.5);border-radius:13px;position:relative}
+  .scrollcue .m:before{content:"";position:absolute;left:50%;top:7px;width:3px;height:6px;border-radius:2px;background:rgba(255,255,255,.7);transform:translateX(-50%);animation:cue 1.6s infinite}
+  @keyframes cue{0%{opacity:0;transform:translate(-50%,0)}40%{opacity:1}100%{opacity:0;transform:translate(-50%,12px)}}
+  @media(max-width:780px){.hero{height:420vh}.h-title{font-size:34px;top:128px}.caps{bottom:172px}.progress{display:none}.hero-cta{right:26px}}
+
+  /* sections */
+  section.block{padding:88px 0;position:relative}
+  .sec-head h2{font-size:clamp(28px,4.2vw,48px);max-width:20ch}
+  .sec-lead{color:var(--ink-soft);font-size:18px;max-width:62ch;margin:14px 0 40px}
+
+  /* QUALITY statement */
+  .quality{background:var(--ink);color:var(--bone);text-align:center}
+  .quality .kpi{display:flex;justify-content:center;gap:60px;flex-wrap:wrap;margin:8px 0 6px}
+  .quality .kpi .big{font-family:'Fraunces',serif;font-size:clamp(46px,8vw,92px);font-weight:600;line-height:1;color:#fff}
+  .quality .kpi .big .u{font-size:.35em;color:var(--gold);display:block;letter-spacing:.04em;margin-top:8px;font-family:'Manrope',sans-serif;font-weight:700;text-transform:uppercase}
+  .quality h2{font-size:clamp(26px,3.6vw,40px);color:#fff;max-width:24ch;margin:26px auto 12px}
+  .quality p{color:#cfc7b6;max-width:54ch;margin:0 auto;font-size:17px}
+  .quality .stamp{display:inline-block;margin-top:24px;border:1px solid rgba(201,162,75,.5);color:var(--gold);border-radius:999px;padding:9px 20px;font-size:14px;font-weight:700;letter-spacing:.04em}
+
+  /* PROCESS (digital замер) */
+  .process{background:var(--paper)}
+  .flow{display:flex;flex-direction:column;gap:0;margin-top:10px;border-left:2px solid var(--line);margin-left:8px}
+  .fstep{position:relative;padding:22px 0 22px 38px}
+  .fstep:before{content:"";position:absolute;left:-9px;top:28px;width:16px;height:16px;border-radius:50%;background:var(--clay);box-shadow:0 0 0 5px var(--paper)}
+  .fstep .n{font-family:'Fraunces',serif;color:var(--clay);font-weight:600;font-size:14px;letter-spacing:.06em}
+  .fstep h3{font-size:20px;margin:5px 0 6px}
+  .fstep p{color:var(--ink-soft);font-size:15.5px;max-width:64ch}
+
+  /* TAKE ON / trust */
+  .takeon{background:var(--bone)}
+  .tcards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:8px}
+  .tcard{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:30px 26px;position:relative;overflow:hidden}
+  .tcard:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--clay)}
+  .tcard h3{font-size:20px;margin-bottom:9px}
+  .tcard p{font-size:15px;color:var(--ink-soft)}
+  @media(max-width:880px){.tcards{grid-template-columns:1fr}}
+
+  /* MATERIALS + NUANCES two-col */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px}
+  .panel{background:var(--white);border:1px solid var(--line);border-radius:22px;padding:34px 32px}
+  .panel h3{font-size:23px;margin-bottom:8px}
+  .panel p.intro{color:var(--ink-soft);font-size:15.5px;margin-bottom:18px}
+  .panel ul{list-style:none;display:flex;flex-direction:column;gap:13px}
+  .panel li{display:flex;gap:12px;font-size:15px;align-items:flex-start}
+  .panel li b{color:var(--ink)}
+  .panel li .ic{flex:0 0 22px;width:22px;height:22px;border-radius:50%;background:var(--clay);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;margin-top:2px}
+  @media(max-width:880px){.duo{grid-template-columns:1fr}}
+
+  /* TARIFFS */
+  .tariffs{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:32px;max-width:780px}
+  .tar{background:var(--white);border:1px solid var(--line);border-radius:22px;padding:34px 30px;position:relative;display:flex;flex-direction:column}
+  .tar.feat{border:2px solid var(--clay);box-shadow:var(--shadow)}
+  .tar .badge{position:absolute;top:-13px;left:30px;background:var(--clay);color:#fff;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:6px 14px;border-radius:999px}
+  .tar h3{font-size:23px}
+  .tar .pr{font-family:'Fraunces',serif;font-size:40px;font-weight:600;margin:12px 0 2px}
+  .tar .pr span{font-size:16px;color:var(--ink-soft)}
+  .tar ul{list-style:none;margin:18px 0 24px;display:flex;flex-direction:column;gap:10px}
+  .tar li{font-size:14.5px;display:flex;gap:10px}
+  .tar li:before{content:"✓";color:var(--clay);font-weight:800}
+  .tar .btn{margin-top:auto;width:100%}
+  .tar-note{margin-top:18px;font-size:14.5px;color:var(--ink-soft);max-width:64ch}
+  @media(max-width:880px){.tariffs{grid-template-columns:1fr}}
+
+  /* B2B */
+  .b2b{background:var(--green);color:var(--bone)}
+  .b2b-inner{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center}
+  .b2b h2{color:#fff;font-size:clamp(26px,3.6vw,40px)}
+  .b2b p{opacity:.86;margin:14px 0 22px;font-size:17px}
+  .b2b ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+  .b2b li{display:flex;gap:11px;font-size:15.5px}
+  .b2b li:before{content:"—";color:var(--gold)}
+  .b2b .btn-call{background:var(--gold);color:#1d1a12}
+  .b2b .btn-call:hover{background:#d8b257}
+  @media(max-width:880px){.b2b-inner{grid-template-columns:1fr;gap:26px}}
+
+  /* FINAL */
+  .final{text-align:center}
+  .final h2{font-size:clamp(30px,4.6vw,54px);max-width:18ch;margin:0 auto 14px}
+  .final p{font-size:18px;color:var(--ink-soft);max-width:52ch;margin:0 auto 26px}
+  .phone-big{font-family:'Fraunces',serif;font-size:clamp(34px,6vw,60px);font-weight:600;display:inline-block;margin-bottom:22px}
+  .phone-big .accent{color:var(--clay)}
+
+  footer{background:var(--ink);color:#b8b1a2;padding:42px 0 110px;font-size:14px}
+  .foot-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+  footer .logo,footer .phone-top{color:#fff}
+
+  /* sticky mobile call bar */
+  .callbar{position:fixed;left:0;right:0;bottom:0;z-index:95;background:var(--clay);color:#fff;display:none;align-items:center;justify-content:space-between;padding:11px 18px;box-shadow:0 -12px 30px -14px rgba(0,0,0,.45)}
+  .callbar .t{font-size:12.5px;opacity:.92} .callbar .p{font-family:'Fraunces',serif;font-size:19px;font-weight:600}
+  .callbar .go{background:#fff;color:var(--clay);border-radius:999px;padding:10px 18px;font-weight:800;font-size:14.5px}
+  @media(max-width:780px){.callbar{display:flex}body{padding-bottom:70px}}
+
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.scrollcue,.s3 .scan{animation:none}}
+</style>
+</head>
+<body>
+
+<header id="hdr">
+  <div class="wrap bar">
+    <div class="logo">Все<b>Штукатуры</b>.ру</div>
+    <div class="bar-right">
+      <a class="phone-top" href="tel:+79015995059">+7 901 599-50-59</a>
+      <a class="btn btn-call" href="tel:+79015995059">Позвонить</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== CINEMATIC HERO: камера проходит по дому ===== -->
+<section class="hero" id="hero">
+  <div class="stage">
+    <div class="cine" id="cine">
+      <div class="scene s0" data-i="0"><div class="room"><div class="floor"></div><div class="lwall"></div><div class="rwall"></div></div><div class="vig"></div><div class="grain"></div></div>
+      <div class="scene s1" data-i="1"><div class="room"><div class="back"></div><div class="floor"></div><div class="lwall"></div><div class="rwall"></div></div><div class="vig"></div><div class="grain"></div></div>
+      <div class="scene s2" data-i="2"><div class="room"><div class="back"></div><div class="beacons"></div><div class="floor"></div><div class="lwall"></div><div class="rwall"></div></div><div class="vig"></div><div class="grain"></div></div>
+      <div class="scene s3" data-i="3"><div class="room"><div class="back"></div><div class="scan"></div><div class="floor"></div><div class="lwall"></div><div class="rwall"></div></div><div class="vig"></div><div class="grain"></div></div>
+      <div class="scene s4" data-i="4"><div class="room"><div class="back"></div><div class="corner"><span class="deg">90°</span></div><div class="floor"></div><div class="lwall"></div><div class="rwall"></div></div><div class="vig"></div><div class="grain"></div></div>
+      <div class="scene s5" data-i="5"><div class="room"><div class="back"></div><div class="floor"></div><div class="lwall"></div><div class="rwall"></div></div><div class="vig"></div><div class="grain"></div></div>
+    </div>
+
+    <div class="hero-ui">
+      <div class="wrap">
+        <span class="h-eyebrow">Механизированная штукатурка · дома и коттеджи · Подмосковье</span>
+        <h1 class="h-title">Проходим по вашему дому — <em>и делаем идеально</em>.</h1>
+
+        <div class="caps">
+          <div class="cap on" data-i="0"><span class="step">Знакомство</span><span class="txt">Заходим к вам в дом</span></div>
+          <div class="cap" data-i="1"><span class="step">Этап 1</span><span class="txt">Грунтовка Knauf — для сцепления</span></div>
+          <div class="cap" data-i="2"><span class="step">Этап 2</span><span class="txt">Маяки и геометрия стен</span></div>
+          <div class="cap" data-i="3"><span class="step">Плоскость</span><span class="txt">Ровно — 1 мм на всю длину стены</span></div>
+          <div class="cap" data-i="4"><span class="step">Углы</span><span class="txt">Углы 90° — без отклонения</span></div>
+          <div class="cap" data-i="5"><span class="step">Готово</span><span class="txt">Сдаём под чистовую отделку</span></div>
+        </div>
+
+        <div class="hero-cta">
+          <a class="btn btn-call btn-lg" href="tel:+79015995059">Позвонить: +7 901 599-50-59</a>
+          <a class="btn btn-ghost btn-lg" href="#zayavka" style="color:#fff;border-color:rgba(255,255,255,.6)">Заказать звонок</a>
+        </div>
+
+        <div class="progress">
+          <div class="pdots" id="pdots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="prail"><span id="prail"></span></div>
+        </div>
+      </div>
+      <div class="scrollcue"><span>Листайте — пройдём по дому</span><span class="m"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== QUALITY (главное доказательство) ===== -->
+<section class="block quality">
+  <div class="wrap">
+    <div class="kpi reveal">
+      <div class="big">90°<span class="u">углы без отклонения</span></div>
+      <div class="big">1&nbsp;мм<span class="u">плоскость на всю длину стены</span></div>
+    </div>
+    <h2 class="reveal">Это наш стандарт на каждом объекте — а не лучший результат в идеальных условиях.</h2>
+    <p class="reveal">Геометрию и плоскость проверяем лазерным уровнем при сдаче. Такие стены принимают самую требовательную отделку — покраску, обои под покраску, крупный формат — без «волн» и переделок.</p>
+    <span class="stamp reveal">Проверяется лазером при сдаче</span>
+  </div>
+</section>
+
+<!-- ===== PROCESS = цифровой замер ===== -->
+<section class="block process">
+  <div class="wrap">
+    <div class="sec-head reveal"><h2>Как проходит работа — от знакомства до сдачи</h2></div>
+    <p class="sec-lead reveal">Без впаривания. Мы объясняем каждый шаг заранее — чтобы вы понимали, что, как и зачем происходит в вашем доме. Так же, как на замере.</p>
+    <div class="flow">
+      <div class="fstep reveal"><div class="n">01</div><h3>Знакомство и осмотр</h3><p>Приезжаем, здороваемся и с вашего разрешения проходим по дому вместе. Отмечаем все комнаты, углы, санузлы — смотрим на объект профессиональным взглядом.</p></div>
+      <div class="fstep reveal"><div class="n">02</div><h3>Объясняем весь процесс</h3><p>Спокойно рассказываем, как всё будет: этапы, какие материалы и почему, сроки, какие нюансы могут возникнуть и под какую отделку готовим стены. Без спешки и без «давайте быстрее подпишем».</p></div>
+      <div class="fstep reveal"><div class="n">03</div><h3>Замер лазером за 15 минут</h3><p>Быстро и точно считаем объём профессиональным лазерным уровнем. Уважаем ваше время — не растягиваем визит на часы.</p></div>
+      <div class="fstep reveal"><div class="n">04</div><h3>Коммерческое предложение сразу</h3><p>Присылаем понятное предложение в день замера. Цену с материалом фиксируем в договоре.</p></div>
+      <div class="fstep reveal"><div class="n">05</div><h3>Работа и сдача</h3><p>Делаем по технологии на немецкой станции PFT и сдаём результат с гарантийным талоном на 24 месяца.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ЧТО МЫ БЕРЁМ НА СЕБЯ ===== -->
+<section class="block takeon">
+  <div class="wrap">
+    <div class="sec-head reveal"><h2>Что мы берём на себя</h2></div>
+    <p class="sec-lead reveal">Чтобы вы могли отдать объект и не вникать в детали. Это сервис уровня, за который к нам и возвращаются.</p>
+    <div class="tcards">
+      <div class="tcard reveal">
+        <h3>Материал — под ключ</h3>
+        <p>Работаем со своим материалом: сами закупаем у проверенных поставщиков, отвечаем за количество и качество. Ошиблись в расчёте — докупаем за свой счёт. Вы платите за результат, а не за мешки.</p>
+      </div>
+      <div class="tcard reveal">
+        <h3>Вывоз мусора включён</h3>
+        <p>Входит в любой тариф. После нас остаются чистые ровные стены, а не гора мешков под дверью.</p>
+      </div>
+      <div class="tcard reveal">
+        <h3>Оплата после приёмки</h3>
+        <p>Без предоплаты. Сначала принимаете работу — потом платите. Уверенность в качестве мы подтверждаем делом.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== МАТЕРИАЛЫ + НЮАНСЫ ===== -->
+<section class="block">
+  <div class="wrap">
+    <div class="duo">
+      <div class="panel reveal">
+        <h3>Почему именно эти материалы</h3>
+        <p class="intro">Мы не используем «что подешевле» — и объясняем, что и зачем кладём в ваши стены.</p>
+        <ul>
+          <li><span class="ic">1</span><span><b>Грунт Knauf Mittelgrunt.</b> Обеспечивает сцепление штукатурки со стеной — без него слой со временем «бухтит» и отходит.</span></li>
+          <li><span class="ic">2</span><span><b>Гипсовая смесь Knauf.</b> Даёт гладкую плотную поверхность под чистовую отделку и здоровый микроклимат в доме.</span></li>
+          <li><span class="ic">3</span><span><b>Станция PFT (Германия).</b> Машинное нанесение — равномерный плотный слой и та самая идеальная плоскость, которую руками не вывести стабильно.</span></li>
+        </ul>
+      </div>
+      <div class="panel reveal">
+        <h3>Нюансы, которые проговариваем заранее</h3>
+        <p class="intro">Хороший подрядчик предупреждает о сложностях до начала, а не ставит перед фактом потом.</p>
+        <ul>
+          <li><span class="ic">!</span><span><b>Сроки сушки.</b> Гипсовой штукатурке нужно время высохнуть до отделки — называем реальные сроки, не обещаем «завтра красьте».</span></li>
+          <li><span class="ic">!</span><span><b>Толщина слоя.</b> Зависит от кривизны стен — честно показываем на замере, где слой больше и почему.</span></li>
+          <li><span class="ic">!</span><span><b>Под какую отделку.</b> Подсказываем, что подходит под вашу покраску/обои, а где нужна другая подготовка.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ТАРИФЫ ===== -->
+<section class="block">
+  <div class="wrap">
+    <div class="sec-head reveal"><h2>Тарифы</h2></div>
+    <p class="sec-lead reveal">Цена с материалом. Точную сумму по вашему дому называем на бесплатном замере.</p>
+    <div class="tariffs reveal">
+      <div class="tar feat">
+        <span class="badge">Выбирают чаще</span>
+        <h3>Стандарт</h3>
+        <div class="pr">от 949 <span>₽/м²</span></div>
+        <ul><li>материал и грунт Knauf включены</li><li>плоскость 1 мм, углы 90°</li><li>вывоз мусора включён</li><li>цена зафиксирована в договоре</li><li>гарантия 24 месяца с талоном</li></ul>
+        <a class="btn btn-call" href="tel:+79015995059">Позвонить</a>
+      </div>
+      <div class="tar">
+        <h3>Максимум</h3>
+        <div class="pr">от 1149 <span>₽/м²</span></div>
+        <ul><li>всё из тарифа «Стандарт»</li><li>премиальный контроль качества</li><li>сжатые сроки</li><li>приоритетная бригада</li></ul>
+        <a class="btn btn-ghost" href="tel:+79015995059">Узнать по телефону</a>
+      </div>
+    </div>
+    <p class="tar-note reveal">Почему «от»: стоимость за м² зависит от объекта — площади, состояния стен и тарифа. Поэтому точную цену мы называем на бесплатном замере и фиксируем в договоре — без доплат в процессе работ.</p>
+  </div>
+</section>
+
+<!-- ===== B2B ===== -->
+<section class="block b2b">
+  <div class="wrap b2b-inner">
+    <div class="reveal">
+      <h2>Работаете с объектами?</h2>
+      <p>Для дизайнеров, архитекторов и прорабов. Субподрядчик по штукатурке, который не подведёт перед вашим клиентом.</p>
+      <a class="btn btn-call btn-lg" href="tel:+79015995059">Обсудить объект</a>
+    </div>
+    <ul class="reveal">
+      <li>Стандарт качества — плоскость 1 мм, углы 90° на каждом объекте</li>
+      <li>Работаем по графику и не срываем сроки</li>
+      <li>Фиксированная смета, которую можно показать вашему клиенту</li>
+      <li>Сдаём под чистовую без переделок</li>
+      <li>Аккуратность и чистота на площадке</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== FINAL ===== -->
+<section class="block final" id="zayavka">
+  <div class="wrap">
+    <h2 class="reveal">Позвоните — расскажем по вашему дому за 5 минут</h2>
+    <p class="reveal">Бесплатный замер за 24 часа, без предоплаты, оплата после приёмки. Объясним весь процесс — как на встрече.</p>
+    <div class="reveal"><a class="phone-big" href="tel:+79015995059">+7 901 599-<span class="accent">50-59</span></a></div>
+    <div class="reveal" style="display:flex;gap:13px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-call btn-lg" href="tel:+79015995059">Позвонить сейчас</a>
+      <a class="btn btn-ghost btn-lg" href="tel:+79015995059">Заказать звонок</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <div class="logo">Все<b>Штукатуры</b>.ру</div>
+    <div>Москва и Московская область · Гарантия 24 месяца · Сертификат Knauf</div>
+    <a class="phone-top" href="tel:+79015995059">+7 901 599-50-59</a>
+  </div>
+</footer>
+
+<a class="callbar" href="tel:+79015995059">
+  <div><div class="t">Расскажем по вашему дому за 5 минут</div><div class="p">+7 901 599-50-59</div></div>
+  <span class="go">Позвонить</span>
+</a>
+
+<script>
+(function(){
+  const hero=document.getElementById('hero');
+  const scenes=[...document.querySelectorAll('.scene')];
+  const caps=[...document.querySelectorAll('.cap')];
+  const dots=[...document.querySelectorAll('#pdots i')];
+  const prail=document.getElementById('prail');
+  const hdr=document.getElementById('hdr');
+  const N=scenes.length, seg=1/N;
+  let ticking=false;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  function update(){
+    ticking=false;
+    const max=hero.offsetHeight-window.innerHeight;
+    const p=clamp(-hero.getBoundingClientRect().top/max,0,1);
+    scenes.forEach((s,i)=>{
+      const center=(i+0.5)*seg;
+      const op=clamp(1.25-Math.abs(p-center)/seg,0,1);
+      const local=(p-i*seg)/seg;                 // ~0..1 across this scene
+      const scale=1.04+clamp(local,-0.3,1.3)*0.12; // camera dolly-in
+      const ty=(0.5-clamp(local,0,1))*4;          // gentle vertical drift
+      s.style.opacity=op.toFixed(3);
+      s.style.transform='scale('+scale.toFixed(3)+') translateY('+ty.toFixed(1)+'%)';
+      s.style.filter='blur('+((1-op)*3).toFixed(1)+'px)';
+      s.style.zIndex=Math.round(op*100);
+    });
+    const idx=Math.min(N-1,Math.floor(p*N+0.0001));
+    caps.forEach(c=>c.classList.toggle('on',+c.dataset.i===idx));
+    dots.forEach((d,i)=>d.classList.toggle('on',i===idx));
+    prail.style.width=(p*100)+'%';
+    // header turns solid once hero is mostly scrolled
+    hdr.classList.toggle('solid', p>0.97 || -hero.getBoundingClientRect().top>max-4);
+  }
+  function onScroll(){if(!ticking){ticking=true;requestAnimationFrame(update)}}
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll);
+  // also flip header on full-page scroll position as fallback
+  window.addEventListener('scroll',()=>{hdr.classList.toggle('solid', window.scrollY>window.innerHeight*5)},{passive:true});
+  update();
+})();
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
