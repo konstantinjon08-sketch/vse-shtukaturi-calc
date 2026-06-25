@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Документы — Все Штукатуры</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --red:#C41208; --red-dark:#A30E06; --red-light:#FFF5F5;
+    --g50:#FAFAFA; --g100:#F5F5F7; --g200:#E8E8ED; --g300:#D2D2D7;
+    --g500:#6E6E73; --g700:#3A3A3C; --g900:#1D1D1F; --white:#FFFFFF;
+    --green:#16A34A; --green-bg:#F0FDF4; --green-br:#BBF7D0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif;
+    background:var(--g100); color:var(--g900); font-size:14px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .panel{background:var(--white); border-bottom:1px solid var(--g200); padding:10px 16px;
+    position:sticky; top:0; z-index:100; box-shadow:0 1px 12px rgba(0,0,0,0.06);}
+  .bar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+  .bar-btns{display:flex; align-items:center; gap:8px;}
+  .panel-title{display:none;}
+  .tabs{display:inline-flex; background:var(--g100); border:1px solid var(--g200); border-radius:10px; padding:3px; gap:2px;}
+  .tab{border:none; background:transparent; padding:7px 16px; font-size:13px; font-weight:600; color:var(--g700);
+    border-radius:7px; cursor:pointer; font-family:inherit; transition:all .18s;}
+  .tab.active{background:var(--red); color:#fff; box-shadow:0 1px 3px rgba(196,18,8,0.3);}
+  .fields{display:none; margin-top:14px;}
+  .fields.open{display:block;}
+  .btn-ghost{background:var(--g100); color:var(--g700); border:1px solid var(--g300); border-radius:9px; padding:9px 16px;
+    font-size:13px; font-weight:600; font-family:inherit; cursor:pointer; transition:all .15s; white-space:nowrap;}
+  .btn-ghost:hover{border-color:var(--red); color:var(--red);}
+  .btn-ghost.active{background:var(--red-light); border-color:var(--red); color:var(--red);}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:10px; margin-bottom:14px;}
+  .field{display:flex; flex-direction:column; gap:4px;}
+  .field label{font-size:11px; color:var(--g500); font-weight:500;}
+  .field input,.field select{height:34px; border:1px solid var(--g300); border-radius:8px; padding:0 10px; font-size:13px;
+    font-family:inherit; color:var(--g900); background:var(--white); transition:border-color .15s;}
+  .field input:focus,.field select:focus{outline:none; border-color:var(--red); box-shadow:0 0 0 3px rgba(196,18,8,0.1);}
+  .toggles{display:flex; align-items:center; gap:6px; margin-bottom:14px; flex-wrap:wrap;}
+  .toggles .lbl{font-size:11px; color:var(--g500); font-weight:600; margin-right:2px;}
+  .chip{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--g700); cursor:pointer;
+    background:var(--g100); border:1px solid var(--g200); border-radius:20px; padding:4px 12px; transition:all .15s;}
+  .chip:hover{border-color:var(--red);}
+  .chip input{accent-color:var(--red); cursor:pointer;}
+  .btn{background:var(--red); color:#fff; border:none; border-radius:9px; padding:11px 22px; font-size:13px; font-weight:600;
+    font-family:inherit; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:background .15s;}
+  .btn:hover{background:var(--red-dark);}
+  .btn svg{width:16px; height:16px;}
+  @media (max-width:640px){
+    .bar{gap:8px;}
+    .tabs{flex:1; justify-content:space-between;}
+    .tab{flex:1; padding:8px 4px; text-align:center;}
+    .bar-btns{width:100%; gap:8px;}
+    .btn-ghost{flex:0 0 auto;}
+    .btn{flex:1; justify-content:center;}
+    .grid{grid-template-columns:1fr 1fr;}
+    .doc{margin:14px auto; border-radius:0;}
+    .hdr,.legal,.tariff,.client,.intro,.foot,hr.dv{margin-left:16px; margin-right:16px;}
+    .hdr{padding-left:0; padding-right:0;}
+    .legal{padding-left:16px; padding-right:16px;}
+  }
+  .doc{max-width:820px; margin:24px auto; background:var(--white); border-radius:14px;
+    box-shadow:0 4px 28px rgba(0,0,0,0.10); overflow:hidden;}
+  .doc-smeta,.doc-dogovor,.doc-akt{display:none;}
+  body.show-smeta .doc-smeta{display:block;}
+  body.show-dogovor .doc-dogovor{display:block;}
+  body.show-akt .doc-akt{display:block;}
+  .hdr{display:flex; justify-content:space-between; align-items:flex-start; padding:30px 38px 22px; border-bottom:2px solid var(--red);}
+  .logo img{height:62px; display:block;}
+  .logo-sub{font-size:11px; color:var(--g500); margin-top:8px;}
+  .meta{text-align:right;}
+  .meta .t1{font-size:15px; font-weight:700; color:var(--g900);}
+  .meta .t2{font-size:12px; color:var(--g500); margin-top:3px;}
+  .meta .t3{font-size:12px; color:var(--red); font-weight:600; margin-top:3px;}
+  .client{margin:20px 38px; padding:15px 18px; background:var(--red-light); border-left:3px solid var(--red); border-radius:8px;}
+  .client .lab{font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--red); margin-bottom:4px;}
+  .client .nm{font-size:16px; font-weight:600;}
+  .client .ob{font-size:13px; color:var(--g500); margin-top:2px;}
+  .client .tm{font-size:13px; color:var(--g700); margin-top:4px; font-style:italic;}
+  .intro{margin:0 38px 24px; padding:14px 0; border-bottom:1px solid var(--g200); font-size:13px; color:var(--g500); font-style:italic;}
+  .tariff{margin:0 38px 30px;}
+  .tariff-h{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+  .tariff-l{display:flex; align-items:center; gap:10px;}
+  .tariff-nm{font-size:18px; font-weight:700;}
+  .badge{background:var(--red); color:#fff; font-size:10px; font-weight:700; padding:3px 11px; border-radius:20px; letter-spacing:.05em; text-transform:uppercase;}
+  .tariff-pr{font-size:21px; font-weight:700; color:var(--red);}
+  table.w{width:100%; border-collapse:collapse; font-size:13px; border:1px solid var(--g200); border-radius:10px; overflow:hidden;}
+  table.w th{background:var(--g900); color:#fff; text-align:left; padding:10px 12px; font-weight:600; font-size:12px;}
+  table.w th:not(:first-child){text-align:right;}
+  table.w td{padding:10px 12px; border-bottom:1px solid var(--g100); color:var(--g700);}
+  table.w td:not(:first-child){text-align:right; font-variant-numeric:tabular-nums;}
+  table.w tbody tr:nth-child(even) td{background:var(--g50);}
+  table.w tr.disc td{color:var(--red); font-weight:600; background:var(--red-light)!important;}
+  table.w tr.total td{font-weight:700; color:var(--red); background:var(--red-light)!important; font-size:14px; border-top:2px solid var(--red); border-bottom:none;}
+  .free{margin-top:12px; padding:14px 16px; background:var(--green-bg); border:1px solid var(--green-br); border-radius:10px;}
+  .free .ti{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#15803D; margin-bottom:8px;}
+  .free .gr{display:grid; grid-template-columns:1fr 1fr; gap:4px 16px;}
+  .free .it{font-size:12px; color:#374151; display:flex; align-items:center; gap:6px;}
+  .ck{color:var(--green); font-weight:700; font-size:14px;}
+  .mat{margin-top:14px;}
+  .mat .ti{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--g500); margin-bottom:8px;}
+  table.m{width:100%; border-collapse:collapse; font-size:12px; border:1px solid var(--g200); border-radius:8px; overflow:hidden;}
+  table.m th{background:var(--g100); color:var(--g700); text-align:left; padding:8px 12px; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.04em;}
+  table.m th:last-child{text-align:right;}
+  table.m td{padding:8px 12px; border-top:1px solid var(--g100); color:var(--g700);}
+  table.m td:last-child{text-align:right; font-weight:600;}
+  .notes{margin-top:10px; padding:10px 14px; background:var(--g50); border-radius:8px; font-size:12px; color:var(--g500);}
+  hr.dv{border:none; border-top:1px solid var(--g200); margin:0 38px 28px;}
+  .foot{margin:0 38px 32px; padding-top:24px; border-top:2px solid var(--red);}
+  .foot-gr{display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:20px;}
+  .foot-s h4{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--red); margin-bottom:8px;}
+  .foot-s p{font-size:12px; color:var(--g700); line-height:1.85;}
+  .sign{display:flex; align-items:center; gap:14px; padding-top:16px; border-top:1px solid var(--g200);}
+  .ava{width:42px; height:42px; border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; color:#fff; font-size:15px; font-weight:700; flex-shrink:0;}
+  .sign p{font-size:14px; font-weight:600;}
+  .sign span{font-size:12px; color:var(--g500);}
+  /* Ссылки / соцсети */
+  .links{margin-top:20px; padding-top:18px; border-top:1px solid var(--g200);}
+  .links .ti{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--g500); margin-bottom:12px;}
+  .links-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .lnk{display:inline-flex; align-items:center; gap:9px; text-decoration:none; color:var(--g900); font-size:13px; font-weight:600;
+    background:var(--white); border:1px solid var(--g300); border-radius:24px; padding:5px 14px 5px 6px; transition:border-color .15s, box-shadow .15s;}
+  .lnk:hover{border-color:var(--red); box-shadow:0 1px 8px rgba(0,0,0,0.06);}
+  .lnk .ic{width:28px; height:28px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-size:13px; letter-spacing:-.02em; flex-shrink:0; line-height:1;}
+  .lnk .nm2{display:flex; flex-direction:column; line-height:1.15;}
+  .lnk .sub2{font-size:10.5px; color:var(--g500); font-weight:500;}
+  @media print{
+    body{background:#fff;}
+    .panel{display:none!important;}
+    .doc{margin:0; border-radius:0; box-shadow:none; max-width:100%;}
+    table.w tbody tr:nth-child(even) td{background:#f9f9f9!important;}
+    table.w tr.total td,table.w tr.disc td{background:#fff5f5!important;}
+    .hdr,.foot{border-color:#C41208!important;}
+    .client{background:#fff5f5!important;}
+    .free{background:#f0fdf4!important;}
+    .badge,.ava{background:#C41208!important;}
+    .tariff,.sigrow{page-break-inside:avoid;}
+    *{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  }
+  /* Пагинация при выгрузке в PDF */
+  h3,.doc-title{page-break-after:avoid;break-after:avoid;}
+  .sigrow,.sigbox,.sign,.foot-gr,.links{page-break-inside:avoid;break-inside:avoid;}
+  .free,.mat,.notes{page-break-inside:avoid;break-inside:avoid;}
+  table.w tr,table.m tr{page-break-inside:avoid;break-inside:avoid;}
+</style>
+</head>
+<body class="show-smeta">
+<div class="panel">
+  <div class="bar">
+    <div class="tabs">
+      <button class="tab active" data-doc="smeta" onclick="showDoc('smeta')">Смета</button>
+      <button class="tab" data-doc="dogovor" onclick="showDoc('dogovor')">Договор</button>
+      <button class="tab" data-doc="akt" onclick="showDoc('akt')">Акт</button>
+    </div>
+    <div class="bar-btns">
+      <button class="btn-ghost" id="data-btn" onclick="toggleData()">Данные</button>
+      <button class="btn" id="pdf-btn" onclick="shareDoc()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span id="pdf-label">Отправить PDF</span>
+      </button>
+    </div>
+  </div>
+  <div class="fields" id="fields">
+  <div class="grid">
+    <div class="field"><label>Клиент</label><input type="text" id="i-client" placeholder="Имя клиента" oninput="update()"></div>
+    <div class="field"><label>Объект / адрес</label><input type="text" id="i-obj" placeholder="Адрес" oninput="update()"></div>
+    <div class="field"><label>Город (договор)</label><input type="text" id="i-city" placeholder="Москва" oninput="update()"></div>
+    <div class="field"><label>Документ №</label><input type="text" id="i-num" placeholder="234" oninput="update()"></div>
+    <div class="field"><label>Скидка %</label><input type="number" id="i-disc" placeholder="0" min="0" max="100" oninput="update()"></div>
+    <div class="field"><label>Площадь гипс (м²)</label><input type="number" id="i-gips" placeholder="0" min="0" oninput="update()"></div>
+    <div class="field"><label>Цена гипс (₽/м²)</label><input type="number" id="i-pr-gips" value="949" min="0" oninput="update()"></div>
+    <div class="field"><label>Площадь ЦПС (м²)</label><input type="number" id="i-cps" placeholder="0" min="0" oninput="update()"></div>
+    <div class="field"><label>Цена ЦПС (₽/м²)</label><input type="number" id="i-pr-cps" value="949" min="0" oninput="update()"></div>
+    <div class="field"><label>Погонаж (м.п.)</label><input type="number" id="i-pogon" placeholder="0" min="0" oninput="update()"></div>
+    <div class="field"><label>Цена погонаж (₽/м.п.)</label><input type="number" id="i-pr-pogon" value="949" min="0" oninput="update()"></div>
+    <div class="field"><label>Откосы (м.п.)</label><input type="number" id="i-otkos" placeholder="0" min="0" oninput="update()"></div>
+    <div class="field"><label>Цена откосы (₽/м.п.)</label><input type="number" id="i-pr-otkos" value="949" min="0" oninput="update()"></div>
+    <div class="field"><label>Цена профиля (₽/м.п.)</label><input type="number" id="i-pr-prof" value="100" min="0" oninput="update()"></div>
+    <div class="field"><label>Цена вывоза мусора (₽)</label><input type="number" id="i-pr-trash" value="0" min="0" oninput="update()"></div>
+    <div class="field"><label>Материал (гипс)</label><input type="text" id="i-mat" value="Волма Гипс Актив серый (30 кг)" oninput="update()"></div>
+    <div class="field"><label>Начало работ</label><input type="text" id="i-start" value="29.05.2026" oninput="update()"></div>
+    <div class="field"><label>Окончание работ</label><input type="text" id="i-end" value="14.06.2026" oninput="update()"></div>
+    <div class="field"><label>Исполнитель (договор/акт)</label>
+      <select id="i-exec" onchange="update()">
+        <option value="ming">Мингажев Александр Алексеевич</option>
+        <option value="kuz">Кузнецов Василий Анатольевич</option>
+      </select>
+    </div>
+  </div>
+  <div class="toggles">
+    <span class="lbl">Строки сметы:</span>
+    <label class="chip"><input type="checkbox" id="t-gips" checked onchange="update()"> Гипс</label>
+    <label class="chip"><input type="checkbox" id="t-cps" checked onchange="update()"> ЦПС</label>
+    <label class="chip"><input type="checkbox" id="t-pogon" checked onchange="update()"> Погонаж</label>
+    <label class="chip"><input type="checkbox" id="t-otkos" checked onchange="update()"> Откосы</label>
+    <label class="chip"><input type="checkbox" id="t-prof" checked onchange="update()"> Профиль</label>
+    <label class="chip"><input type="checkbox" id="t-trash" onchange="update()"> Вывоз мусора</label>
+  </div>
+  </div>
+</div>
+<!-- ===== СМЕТА ===== -->
+<div class="doc doc-smeta">
+  <div class="hdr">
+    <div class="logo"><img src="https://vse-shtukaturi.ru/42130505.svg" alt="Все Штукатуры">
+      <div class="logo-sub">vse-shtukaturi.ru &nbsp;·&nbsp; +7 (901) 599-50-59</div></div>
+    <div class="meta"><div class="t1">Смета № <span id="s-num">—</span></div><div class="t2" id="s-date"></div><div class="t3" id="s-valid"></div></div>
+  </div>
+  <div class="client"><div class="lab">Подготовлено для</div><div class="nm" id="s-client">—</div><div class="ob" id="s-obj"></div><div class="tm" id="s-term"></div></div>
+  <div class="intro">Индивидуальная смета на механизированные штукатурные работы.</div>
+  <div class="tariff">
+    <div class="tariff-h"><div class="tariff-l"><div class="tariff-nm">Перечень работ</div></div></div>
+    <table class="w"><colgroup><col style="width:45%"><col style="width:18%"><col style="width:18%"><col style="width:19%"></colgroup>
+      <thead><tr><th>Наименование работ</th><th>Объём</th><th>Цена</th><th>Сумма</th></tr></thead>
+      <tbody id="smeta-body"></tbody><tfoot id="smeta-foot"></tfoot></table>
+    <div class="free"><div class="ti">Входит в стоимость</div><div class="gr">
+      <div class="it"><span class="ck">✓</span> <span id="inc-mat">Материал</span></div>
+      <div class="it"><span class="ck">✓</span> Доставка и разгрузка</div>
+      <div class="it"><span class="ck">✓</span> Грунтование поверхностей</div>
+      <div class="it"><span class="ck">✓</span> Углы 90° на кухне и в санузлах</div>
+      <div class="it"><span class="ck">✓</span> Сетка на примыканиях</div>
+      <div class="it"><span class="ck">✓</span> Защитные уголки</div>
+      <div class="it"><span class="ck">✓</span> Гарантия 24 месяца</div>
+      <div class="it" id="inc-trash" style="display:none"><span class="ck">✓</span> Вывоз мусора</div></div></div>
+    <div class="mat"><div class="ti">Материалы (расчёт)</div>
+      <table class="m"><thead><tr><th>Наименование</th><th>Количество</th></tr></thead><tbody id="smeta-mat"></tbody></table></div>
+    <div class="notes"><p>1. Материал рассчитан при слое до 20 мм</p><p id="note-trash">2. Мусор оставляем в мешках</p></div>
+  </div>
+  <hr class="dv">
+  <div class="foot">
+    <div class="foot-gr">
+      <div class="foot-s"><h4>Условия работы</h4><p>
+        — До начала: защита окон и дверей плёнкой<br>— После: полный порядок на объекте<br>
+        — Вода и электро не далее 20 м от дома<br>— Доступ на объект — круглосуточно<br>
+        — Температурный режим: от +5°C до +30°C</p></div>
+      <div class="foot-s"><h4>Порядок оплаты</h4><p>
+        — 30% аванс после завоза материалов<br>— 70% после сдачи работ<br><br>
+        <strong>Смета действительна 14 дней</strong></p></div>
+    </div>
+    <div class="sign"><div class="ava">ВА</div><div>
+      <p>Василий — технический руководитель</p>
+      <span>+7 (901) 599-50-59 &nbsp;·&nbsp; WhatsApp &nbsp;·&nbsp; vse-shtukaturi.ru</span></div></div>
+    <div class="links">
+      <div class="ti">Контакты и ссылки</div>
+      <div class="links-row">
+        <a class="lnk" href="https://vse-shtukaturi.ru" target="_blank" rel="noopener">
+          <span class="ic" style="background:#C41208">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 2.6 15.4 0 18M12 3c-2.6 2.6-2.6 15.4 0 18"/></svg>
+          </span>
+          <span class="nm2">Сайт<span class="sub2">vse-shtukaturi.ru</span></span>
+        </a>
+        <a class="lnk" href="https://www.avito.ru/moskva/predlozheniya_uslug/mehanizirovannaya_shtukaturka_3945307541" target="_blank" rel="noopener">
+          <span class="ic" style="background:#04E061;color:#06351E">a</span>
+          <span class="nm2">Avito<span class="sub2">Объявление</span></span>
+        </a>
+        <a class="lnk" href="https://vk.com/vseshtukaturiru" target="_blank" rel="noopener">
+          <span class="ic" style="background:#0077FF">VK</span>
+          <span class="nm2">ВКонтакте<span class="sub2">vseshtukaturiru</span></span>
+        </a>
+        <a class="lnk" href="https://profi.ru/profile/MingazhevAA2" target="_blank" rel="noopener">
+          <span class="ic" style="background:#2B2D43">П</span>
+          <span class="nm2">Профи.ру<span class="sub2">MingazhevAA2</span></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== ДОГОВОР ===== -->
+<div class="doc doc-dogovor">
+  <div class="hdr">
+    <div class="logo"><img src="https://vse-shtukaturi.ru/42130505.svg" alt="Все Штукатуры">
+      <div class="logo-sub">vse-shtukaturi.ru &nbsp;·&nbsp; +7 (901) 599-50-59</div></div>
+    <div class="meta"><div class="t1">Договор № <span id="d-num">—</span></div><div class="t2" id="d-date"></div></div>
+  </div>
+  <div class="legal">
+    <div class="doc-title">Договор гражданско-правового характера<br>на выполнение работ по механизированной штукатурке № <span id="d-num2">—</span></div>
+    <div class="doc-city"><span>г. <span id="d-city">______________</span></span><span id="d-date2"></span></div>
+    <p><strong>Заказчик:</strong> <span class="hl" id="d-client">______________________________</span>, именуемый в дальнейшем «Заказчик», с одной стороны, и <strong>Исполнитель:</strong> <span class="hl" id="d-exec">______________________________</span>, именуемый в дальнейшем «Исполнитель», с другой стороны, заключили настоящий договор о нижеследующем:</p>
+    <h3>1. Предмет договора</h3>
+    <p>1.1. Исполнитель обязуется выполнить работы по механизированной штукатурке стен и/или потолков в объеме и по адресу: <span class="hl" id="d-obj">______________</span> (далее — «Работы»), а Заказчик обязуется принять и оплатить эти работы.</p>
+    <h3>2. Стоимость работ и порядок расчетов</h3>
+    <p>2.1. Стоимость работ по настоящему договору составляет <span id="d-sum">______________</span>.</p>
+    <p>2.2. Авансовый платеж составляет <span id="d-avans">______________</span>.</p>
+    <p>2.3. Оставшуюся сумму заказчик выплачивает после окончания работ <span id="d-ostatok">______________</span>.</p>
+    <p>2.4. Оплата производится Заказчиком по факту выполнения Работ в течение 1 календарного дня после подписания акта сдачи-приемки выполненных работ.</p>
+    <p>2.5. Изменения объема и стоимости работ в ходе выполнения механизированной штукатурки (увеличение площади, погонажа, откосов, иных работ) согласовываются сторонами в Приложении к Договору.</p>
+    <p>2.6. Стороны признают юридическую силу переписки, осуществляемой с использованием мессенджеров, при согласовании заданий, объемов работ, а также утверждении промежуточных результатов.</p>
+    <h3>3. Сроки выполнения работ</h3>
+    <p>3.1. Исполнитель обязуется начать выполнение работ с <span class="hl" id="d-start">______</span> и завершить их до <span class="hl" id="d-end">______</span>.</p>
+    <p>3.2. В случае невозможности выполнения работ в установленные сроки по вине Исполнителя, последний обязан уведомить Заказчика и согласовать новые сроки выполнения работ.</p>
+    <p>3.3. В случае невозможности выполнения работ в установленные сроки по вине Заказчика, последний обязан уведомить Исполнителя и согласовать новые сроки выполнения работ.</p>
+    <h3>4. Права и обязанности сторон</h3>
+    <p class="sub">Исполнитель обязуется:</p>
+    <p>4.1. Выполнить работы в соответствии с СП 71.13300.2017 (7.2.13 «Улучшенная»).</p>
+    <p>4.2. Обеспечить использование качественных материалов и оборудования.</p>
+    <p>4.3. Сдать выполненные работы Заказчику в указанные сроки.</p>
+    <p>4.4. Количество углов 90°: Исполнитель обязуется выполнить внутренние углы в количестве <span class="fill">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> штук с точностью 90°.</p>
+    <p class="sub">Заказчик обязуется:</p>
+    <p>4.5. Обеспечить круглосуточный доступ Исполнителю к месту выполнения работ.</p>
+    <p>4.6. Принять выполненные работы при их соответствии условиям договора.</p>
+    <p>4.7. Оплатить выполненные работы в порядке и сроки, установленные настоящим договором.</p>
+    <p>4.8. При привлечении сторонней организации для осуществления технического надзора за выполнением работ — сторонняя организация должна иметь соответствующую аккредитацию и опыт в данной области. Расходы на привлечение стороннего технадзора несет Заказчик.</p>
+    <h3>5. Ответственность сторон</h3>
+    <p>5.1. В случае ненадлежащего выполнения или невыполнения обязательств по настоящему договору стороны несут ответственность в соответствии с действующим законодательством Российской Федерации.</p>
+    <p>5.2. Исполнитель несет ответственность за качество выполненных работ и обязуется устранить выявленные недостатки в течение 14 календарных дней за свой счет.</p>
+    <h3>6. Форс-мажор</h3>
+    <p>6.1. Стороны освобождаются от ответственности за частичное или полное невыполнение обязательств по настоящему договору в случае наступления обстоятельств непреодолимой силы (форс-мажор), подтвержденных соответствующими компетентными органами.</p>
+    <h3>7. Заключительные положения</h3>
+    <p>7.1. Все споры и разногласия, возникающие из настоящего договора или в связи с ним, стороны будут стремиться разрешать путем переговоров.</p>
+    <p>7.2. В случае невозможности урегулирования споров путем переговоров они подлежат рассмотрению в судебном порядке в соответствии с законодательством Российской Федерации.</p>
+    <p>7.3. Настоящий договор составлен в двух экземплярах, по одному для каждой из сторон, и вступает в силу с момента его подписания.</p>
+    <p>7.4. Настоящий договор состоит из двух страниц.</p>
+    <h3>8. Гарантия качества</h3>
+    <p>8.1. Исполнитель гарантирует качество произведенных работ в течение 24 месяцев при предоставлении материалов Исполнителем.</p>
+    <p>8.2. Гарантия не распространяется на дефекты, возникшие вследствие:</p>
+    <ul>
+      <li>нарушения Заказчиком правил эксплуатации или условий эксплуатации помещений;</li>
+      <li>механических повреждений, вызванных действиями Заказчика или третьих лиц.</li>
+    </ul>
+    <h3>9. Реквизиты и подписи сторон</h3>
+    <div class="sigrow">
+      <div class="sigbox">
+        <div class="role">Заказчик</div>
+        <div class="line">ФИО: <span class="hl" id="d-client3">______________________</span></div>
+        <div class="line">Паспортные данные: <span class="fill">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+        <div class="line">Адрес регистрации: <span class="fill">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+        <div class="line">Телефон: <span class="fill">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+        <div class="sgn">Подпись: ____________ &nbsp;&nbsp; Дата: __________</div>
+      </div>
+      <div class="sigbox">
+        <div class="role">Исполнитель</div>
+        <div class="line">ФИО: <span class="hl" id="d-efio">______________________</span></div>
+        <div class="line" id="d-ebirth"></div>
+        <div class="line">Паспортные данные: <span id="d-epass">______________</span></div>
+        <div class="line">Адрес регистрации: <span id="d-eaddr">______________</span></div>
+        <div class="line">Телефон: <span id="d-ephone">+7 901 599-50-59</span></div>
+        <div class="sgn">Подпись: ____________ &nbsp;&nbsp; Дата: __________</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== АКТ ===== -->
+<div class="doc doc-akt">
+  <div class="hdr">
+    <div class="logo"><img src="https://vse-shtukaturi.ru/42130505.svg" alt="Все Штукатуры">
+      <div class="logo-sub">vse-shtukaturi.ru &nbsp;·&nbsp; +7 (901) 599-50-59</div></div>
+    <div class="meta"><div class="t1">Акт № <span id="a-num">—</span></div><div class="t2" id="a-date"></div></div>
+  </div>
+  <div class="legal">
+    <div class="doc-title">АКТ ВЫПОЛНЕННЫХ РАБОТ</div>
+    <div class="doc-city"><span>к Договору № <span id="a-dnum">—</span></span><span id="a-date2"></span></div>
+    <p>Исполнитель <span class="hl" id="a-exec">—</span> и Заказчик <span class="hl" id="a-client">______________</span> составили настоящий Акт о том, что Исполнителем выполнены следующие работы по адресу: <span class="hl" id="a-obj">______________</span>:</p>
+    <table class="w" style="margin:16px 0;"><colgroup><col style="width:46%"><col style="width:18%"><col style="width:18%"><col style="width:18%"></colgroup>
+      <thead><tr><th>Наименование работ</th><th>Объём</th><th>Цена</th><th>Сумма</th></tr></thead>
+      <tbody id="a-body"></tbody><tfoot id="a-foot"></tfoot></table>
+    <p>Работы выполнены в полном объёме, в установленные сроки. Заказчик претензий по качеству и срокам не имеет.</p>
+    <p>Гарантийный срок на выполненные работы — 24 месяца с даты подписания настоящего Акта.</p>
+    <div class="sigrow">
+      <div class="sigbox"><div class="role">Работы сдал (Исполнитель)</div>
+        <div class="line" id="a-efio">—</div>
+        <div class="line">Телефон: +7 901 599-50-59</div>
+        <div class="sgn">Подпись: ____________ &nbsp;&nbsp; Дата: __________</div></div>
+      <div class="sigbox"><div class="role">Работы принял (Заказчик)</div>
+        <div class="line" id="a-client2">______________________</div>
+        <div class="line">Телефон: <span class="fill">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+        <div class="sgn">Подпись: ____________ &nbsp;&nbsp; Дата: __________</div></div>
+    </div>
+  </div>
+</div>
+<script>
+  function fmt(n){return Math.round(n).toLocaleString('ru-RU')+' \u20BD';}
+  function digits(n){return Math.round(n).toLocaleString('ru-RU');}
+  // Сумма прописью (рубли)
+  function rublesToWords(num){
+    num=Math.round(num);
+    if(num===0) return 'ноль рублей';
+    const ones=['','один','два','три','четыре','пять','шесть','семь','восемь','девять'];
+    const onesF=['','одна','две','три','четыре','пять','шесть','семь','восемь','девять'];
+    const teens=['десять','одиннадцать','двенадцать','тринадцать','четырнадцать','пятнадцать','шестнадцать','семнадцать','восемнадцать','девятнадцать'];
+    const tens=['','','двадцать','тридцать','сорок','пятьдесят','шестьдесят','семьдесят','восемьдесят','девяносто'];
+    const huns=['','сто','двести','триста','четыреста','пятьсот','шестьсот','семьсот','восемьсот','девятьсот'];
+    function triple(n,fem){
+      let s='';const h=Math.floor(n/100),t=Math.floor((n%100)/10),o=n%10;
+      if(h)s+=huns[h]+' ';
+      if(t===1){s+=teens[o]+' ';}
+      else{if(t)s+=tens[t]+' ';if(o)s+=(fem?onesF[o]:ones[o])+' ';}
+      return s;
+    }
+    function plural(n,f){const a=n%10,b=n%100;if(a===1&&b!==11)return f[0];if(a>=2&&a<=4&&(b<10||b>=20))return f[1];return f[2];}
+    let r='';
+    const mil=Math.floor(num/1e6),th=Math.floor((num%1e6)/1e3),rest=num%1e3;
+    if(mil)r+=triple(mil,false)+plural(mil,['миллион','миллиона','миллионов'])+' ';
+    if(th)r+=triple(th,true)+plural(th,['тысяча','тысячи','тысяч'])+' ';
+    if(rest)r+=triple(rest,false);
+    r=r.trim()+' '+plural(num,['рубль','рубля','рублей']);
+    return r.charAt(0).toUpperCase()+r.slice(1);
+  }
+  function sumWithWords(n){
+    if(n<=0) return '______________';
+    return '<b>'+digits(n)+'</b> (<i>'+rublesToWords(n)+'</i>)';
+  }
+  // Данные исполнителей
+  const EXECS={
+    ming:{fio:'Мингажев Александр Алексеевич', phone:'+7 901 599-50-59'},
+    kuz: {fio:'Кузнецов Василий Анатольевич', phone:'+7 901 599-50-59'}
+  };
+  function calc(){
+    const v=id=>document.getElementById(id);
+    const gips=parseFloat(v('i-gips').value)||0, cps=parseFloat(v('i-cps').value)||0;
+    const pogon=parseFloat(v('i-pogon').value)||0, otkos=parseFloat(v('i-otkos').value)||0;
+    const disc=parseFloat(v('i-disc').value)||0;
+    const prGips=parseFloat(v('i-pr-gips').value)||0;
+    const prCps=parseFloat(v('i-pr-cps').value)||0;
+    const prPogon=parseFloat(v('i-pr-pogon').value)||0;
+    const prOtkos=parseFloat(v('i-pr-otkos').value)||0;
+    const prProf=parseFloat(v('i-pr-prof').value)||0;
+    const sG=v('t-gips').checked,sC=v('t-cps').checked,sP=v('t-pogon').checked,sO=v('t-otkos').checked,sPr=v('t-prof').checked;
+    const matName=(v('i-mat').value||'').trim()||'Волма Гипс Актив серый (30 кг)';
+    let rows=[],total=0;
+    if(sG&&gips>0){const s=gips*prGips;total+=s;rows.push(['Штукатурка стен гипс',gips+' м\u00B2',prGips.toLocaleString('ru-RU')+' \u20BD',s]);}
+    if(sC&&cps>0){const s=cps*prCps;total+=s;rows.push(['Штукатурка стен ЦПС',cps+' м\u00B2',prCps.toLocaleString('ru-RU')+' \u20BD',s]);}
+    if(sP&&pogon>0){const s=pogon*prPogon;total+=s;rows.push(['Погонаж',pogon+' м.п.',prPogon.toLocaleString('ru-RU')+' \u20BD',s]);}
+    if(sO&&otkos>0){const s=otkos*prOtkos;total+=s;rows.push(['Откосы',otkos+' м.п.',prOtkos.toLocaleString('ru-RU')+' \u20BD',s]);}
+    if(sPr&&otkos>0){const s=otkos*prProf;total+=s;rows.push(['Монтаж профиля примыкания',otkos+' м.п.',prProf.toLocaleString('ru-RU')+' \u20BD',s]);}
+    const trashOn=v('t-trash').checked;
+    const prTrash=parseFloat(v('i-pr-trash').value)||0;
+    if(trashOn&&prTrash>0){total+=prTrash;rows.push(['Вывоз мусора','1 усл.',prTrash.toLocaleString('ru-RU')+' \u20BD',prTrash]);}
+    const discAmt=disc>0?total*disc/100:0;
+    const final=total-discAmt;
+    const tot=gips+cps;
+    let mat=[];
+    if(gips>0)mat.push([matName,Math.ceil(gips*17/30)+' мешков']);
+    if(cps>0)mat.push(['ЦПС (40 кг)',Math.ceil(cps*27/40)+' мешков']);
+    if(tot>0)mat.push(['Грунтовка',Math.ceil(tot/100)+' канистр']);
+    if(tot>0)mat.push(['Маяки штукатурные',Math.ceil(tot/2)+' шт.']);
+    if((pogon+otkos)>0)mat.push(['Уголки защитные',Math.ceil((pogon+otkos)*1.2)+' шт.']);
+    if(sPr&&otkos>0)mat.push(['Профили примыкания',Math.ceil(otkos*1.3)+' шт.']);
+    return {rows,total,discAmt,final,mat,disc,trashOn,prTrash};
+  }
+  function rowsHtml(rows){
+    if(!rows.length)return '<tr><td colspan="4" style="color:#999;text-align:center;padding:16px">Введите данные объекта</td></tr>';
+    return rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${fmt(r[3])}</td></tr>`).join('');
+  }
+  function footHtml(t,disc){
+    if(t.total<=0)return '<tr class="total"><td colspan="3" style="text-align:right">Итого за работы</td><td>—</td></tr>';
+    if(disc>0){
+      return `<tr class="total" style="border-bottom:1px solid #f0c9c6!important"><td colspan="3" style="text-align:right">Итого за работы</td><td>${fmt(t.total)}</td></tr>`+
+             `<tr class="disc"><td colspan="3" style="text-align:right">Скидка ${disc}%</td><td>\u2212${fmt(t.discAmt)}</td></tr>`+
+             `<tr class="total"><td colspan="3" style="text-align:right">Итого со скидкой</td><td>${fmt(t.final)}</td></tr>`;
+    }
+    return `<tr class="total"><td colspan="3" style="text-align:right">Итого за работы</td><td>${fmt(t.total)}</td></tr>`;
+  }
+  function matHtml(m){
+    if(!m.length)return '<tr><td colspan="2" style="color:#999;text-align:center;padding:12px">Введите данные объекта</td></tr>';
+    return m.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('');
+  }
+  function update(){
+    const v=id=>document.getElementById(id);
+    const client=v('i-client').value.trim();
+    const obj=v('i-obj').value.trim();
+    const city=v('i-city').value.trim();
+    const num=v('i-num').value.trim()||'—';
+    const start=v('i-start').value.trim();
+    const end=v('i-end').value.trim();
+    const execKey=v('i-exec').value;
+    const ex=EXECS[execKey];
+    const today=new Date();
+    const valid=new Date(today.getTime()+14*864e5);
+    const opts={day:'numeric',month:'long',year:'numeric'};
+    const todayStr=today.toLocaleDateString('ru-RU',opts);
+    const data=calc();
+    const matName=(v('i-mat').value||'').trim()||'Волма Гипс Актив серый (30 кг)';
+    const dash='—', line='______________';
+    // СМЕТА
+    v('s-num').textContent=num;
+    v('s-date').textContent=todayStr;
+    v('s-valid').textContent='Действительна до '+valid.toLocaleDateString('ru-RU',opts);
+    v('s-client').textContent=client||dash;
+    v('s-obj').textContent=obj?'Объект: '+obj:'';
+    v('s-term').textContent=(start&&end)?('Сроки выполнения: с '+start+' по '+end):'';
+    v('smeta-body').innerHTML=rowsHtml(data.rows);
+    v('smeta-foot').innerHTML=footHtml(data,data.disc);
+    v('smeta-mat').innerHTML=matHtml(data.mat);
+    v('inc-mat').textContent='Материал '+matName;
+    v('inc-trash').style.display=(data.trashOn&&data.prTrash===0)?'':'none';
+    const noteTrash=document.getElementById('note-trash');
+    if(!data.trashOn) noteTrash.textContent='2. Мусор оставляем в мешках';
+    else if(data.prTrash>0) noteTrash.textContent='2. Вывоз мусора рассчитан отдельной строкой';
+    else noteTrash.textContent='2. Вывоз мусора включён в стоимость';
+    // ДОГОВОР
+    const avans=Math.round(data.final*0.3);
+    const ostatok=data.final-avans;
+    v('d-num').textContent=num; v('d-num2').textContent=num;
+    v('d-date').textContent=todayStr; v('d-date2').textContent=todayStr+' г.';
+    v('d-city').textContent=city||'______________';
+    v('d-client').innerHTML=client||line;
+    v('d-client3').innerHTML=client||'______________________';
+    v('d-exec').innerHTML=ex.fio;
+    v('d-obj').innerHTML=obj||line;
+    v('d-sum').innerHTML=sumWithWords(data.final);
+    v('d-avans').innerHTML=sumWithWords(avans);
+    v('d-ostatok').innerHTML=sumWithWords(ostatok);
+    v('d-start').textContent=start||'______';
+    v('d-end').textContent=end||'______';
+    v('d-efio').innerHTML=ex.fio;
+    v('d-ebirth').textContent='';
+    v('d-epass').innerHTML='_______________________';
+    v('d-eaddr').innerHTML='_______________________';
+    v('d-ephone').textContent=ex.phone;
+    // АКТ
+    v('a-num').textContent=num; v('a-dnum').textContent=num;
+    v('a-date').textContent=todayStr; v('a-date2').textContent=todayStr+' г.';
+    v('a-exec').innerHTML=ex.fio;
+    v('a-client').innerHTML=client||'______________________';
+    v('a-client2').innerHTML=client||'______________________';
+    v('a-obj').innerHTML=obj||line;
+    v('a-body').innerHTML=rowsHtml(data.rows);
+    v('a-foot').innerHTML=footHtml(data,data.disc);
+    v('a-efio').innerHTML=ex.fio;
+  }
+  let currentDoc='smeta';
+  function showDoc(name){
+    currentDoc=name;
+    document.body.className='show-'+name;
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.doc===name));
+  }
+  function toggleData(){
+    const f=document.getElementById('fields');
+    const b=document.getElementById('data-btn');
+    const open=f.classList.toggle('open');
+    b.classList.toggle('active',open);
+  }
+  const DOC_SEL={smeta:'.doc-smeta',dogovor:'.doc-dogovor',akt:'.doc-akt'};
+  const DOC_NAME={smeta:'Смета',dogovor:'Договор',akt:'Акт'};
+  function downloadBlob(blob,name){
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download=name; document.body.appendChild(a); a.click();
+    a.remove(); setTimeout(()=>URL.revokeObjectURL(url),4000);
+  }
+  async function shareDoc(){
+    const btn=document.getElementById('pdf-btn');
+    const label=document.getElementById('pdf-label');
+    const oldLabel=label.textContent;
+    btn.disabled=true; label.textContent='Готовлю PDF…';
+    const prevScrollX=window.scrollX, prevScrollY=window.scrollY;
+    window.scrollTo(0,0);
+    // клон активного документа: фикс. ширина 820px, позиция (0,0) — стабильный ровный захват
+    const src=document.querySelector(DOC_SEL[currentDoc]);
+    const clone=src.cloneNode(true);
+    clone.style.cssText='position:fixed;left:0;top:0;width:820px;max-width:820px;margin:0;border-radius:0;box-shadow:none;background:#fff;z-index:-1;';
+    document.body.appendChild(clone);
+    const fileName=DOC_NAME[currentDoc]+'_Все_Штукатуры.pdf';
+    try{
+      const canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff',windowWidth:820,x:0,y:0,scrollX:0,scrollY:0});
+      const cloneW=clone.offsetWidth||820;
+      const linkRects=[...clone.querySelectorAll('.lnk')].map(a=>{const r=a.getBoundingClientRect();return {url:a.href,x:r.left,y:r.top,w:r.width,h:r.height};});
+      const sX=canvas.width/cloneW;
+      if(clone.parentNode) clone.remove();
+      const {jsPDF}=window.jspdf;
+      const pdf=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+      const margin=6;
+      const pageW=pdf.internal.pageSize.getWidth();
+      const pageH=pdf.internal.pageSize.getHeight();
+      const contentW=pageW-margin*2;
+      const contentH=pageH-margin*2;
+      const pxPerMm=canvas.width/contentW;
+      const pageHpx=Math.floor(contentH*pxPerMm);
+      const ctx=canvas.getContext('2d');
+      let canScan=true;
+      const isRowBlank=(y)=>{
+        if(y<=0||y>=canvas.height) return true;
+        try{
+          const d=ctx.getImageData(0,y,canvas.width,1).data;
+          for(let i=0;i<d.length;i+=4){ if(d[i]<248||d[i+1]<248||d[i+2]<248) return false; }
+          return true;
+        }catch(e){ canScan=false; return false; }
+      };
+      const findBreak=(t)=>{ if(!canScan) return t; for(let y=t;y>t-200&&y>0;y--){ if(isRowBlank(y)) return y; } return t; };
+      let pages=0, sy=0; const pageRanges=[];
+      while(sy<canvas.height){
+        const remaining=canvas.height-sy;
+        let sliceH;
+        if(remaining<=pageHpx){ sliceH=remaining; }
+        else { const br=findBreak(sy+pageHpx); sliceH=br-sy; if(sliceH<pageHpx*0.5) sliceH=pageHpx; }
+        const pc=document.createElement('canvas'); pc.width=canvas.width; pc.height=sliceH;
+        pc.getContext('2d').drawImage(canvas,0,sy,canvas.width,sliceH,0,0,canvas.width,sliceH);
+        const img=pc.toDataURL('image/jpeg',0.98);
+        if(pages>0) pdf.addPage();
+        pdf.addImage(img,'JPEG',margin,margin,contentW,sliceH/pxPerMm);
+        pageRanges.push({page:pages+1,start:sy,h:sliceH});
+        pages++; sy+=sliceH;
+        if(pages>40) break;
+      }
+      // Кликабельные зоны поверх бейджей-ссылок (работают в PDF)
+      for(const lr of linkRects){
+        const cyTop=lr.y*sX, cxLeft=lr.x*sX, cw=lr.w*sX, ch=lr.h*sX;
+        const pr=pageRanges.find(p=>cyTop>=p.start&&cyTop<p.start+p.h)||pageRanges[pageRanges.length-1];
+        if(!pr) continue;
+        const x_mm=margin+cxLeft/pxPerMm;
+        const y_mm=margin+(cyTop-pr.start)/pxPerMm;
+        const w_mm=cw/pxPerMm, h_mm=ch/pxPerMm;
+        try{ pdf.setPage(pr.page); pdf.link(x_mm,y_mm,w_mm,h_mm,{url:lr.url}); }catch(e){}
+      }
+      if(pages>0){ try{ pdf.setPage(pages); }catch(e){} }
+      const blob=pdf.output('blob');
+      const file=new File([blob],fileName,{type:'application/pdf'});
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        try{ await navigator.share({files:[file],title:DOC_NAME[currentDoc]}); }
+        catch(e){ if(e.name!=='AbortError') downloadBlob(blob,fileName); }
+      } else {
+        downloadBlob(blob,fileName);
+      }
+    }catch(err){
+      if(clone.parentNode) clone.remove();
+      alert('Не удалось сделать PDF. Попробуйте ещё раз.\n'+(err&&err.message?err.message:''));
+    }finally{
+      window.scrollTo(prevScrollX,prevScrollY);
+      btn.disabled=false; label.textContent=oldLabel;
+    }
+  }
+  update();
+</script>
+</body>
+</html>
